@@ -1,0 +1,8 @@
+# For Production
+rm -R dist/*
+python -m build
+python -m twine upload dist/*
+
+# For Testing
+python -m twine upload --repository testpypi dist/*
+python -m pip install --index-url https://test.pypi.org/simple/{package}
