@@ -230,6 +230,7 @@ def df_to_cat(df):
 				qnsstring += f"{row[qnlabel]:2.0f}"
 
 		lines.append(f"{freq:13.4f}{error:8.4f}{intens:8.4f}{row['degfreed']:2.0f}{row['elower']:10.4f}{row['usd']:3.0f}{row['tag']:7.0f}{row['qnfmt']:4.0f}{qnsstring}")
+	lines.append("\n")
 	
 	return("\n".join(lines))
 
@@ -246,7 +247,8 @@ def df_to_lin(df):
 				qnsstring += f"{min(row[qnlabel], 999):3.0f}"
 		qnsstring = qnsstring + padstring
 		lines.append(f"{qnsstring} {min(row['x'], 99999999.9999):13.4f} {min(row['error'], 999.9999):8.4f} {min(row['weight'], 99999999.9999):13.4f}{r'  // '+row['comment'] if row['comment'] else ''}")
-		
+	lines.append("")
+	
 	return("\n".join(lines))
 
 def egy_to_df(fname, sort=True):
