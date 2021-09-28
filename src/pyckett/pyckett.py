@@ -246,7 +246,13 @@ def df_to_lin(df):
 			else:
 				qnsstring += f"{min(row[qnlabel], 999):3.0f}"
 		qnsstring = qnsstring + padstring
-		lines.append(f"{qnsstring} {min(row['x'], 99999999.9999):13.4f} {min(row['error'], 999.9999):8.4f} {min(row['weight'], 99999999.9999):13.4f}{r'  // '+row['comment'] if row['comment'] else ''}")
+		comment = ""
+		if row["comment"]:
+			comment = row["comment"].strip()
+			if comment[:2] in [r"\\", r"//"]:
+				comment = comment[2:].strip()
+			comment = r"  // "+comment
+		lines.append(f"{qnsstring} {min(row['x'], 99999999.9999):13.4f} {min(row['error'], 999.9999):8.4f} {min(row['weight'], 99999999.9999):13.4f}{comment}")
 	lines.append("")
 	
 	return("\n".join(lines))
