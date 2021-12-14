@@ -121,7 +121,7 @@ def str_to_stream(string):
 
 def column_to_numeric(val, force_int=False):
 	val = val.strip()
-	if val == "" or val == ":":
+	if val == "" or val == ":" or val == len(val)*"*":
 		if force_int:
 			return(np.iinfo(np.int64).min)
 		else:
