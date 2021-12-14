@@ -14,46 +14,48 @@ import matplotlib.pyplot as plt
 
 ## Miscellaneous
 preset_colors = ['#000000e0', '#dbb243e0', '#2e42d3e0', '#e54fe3e0', '#f23434e0']
+qnlabels = ['qnu1', 'qnu2', 'qnu3', 'qnu4', 'qnu5', 'qnu6', 'qnl1', 'qnl2', 'qnl3', 'qnl4', 'qnl5', 'qnl6']
+
 
 cat_dtypes = {
-  'x':			np.float,
-  'error':		np.float,
-  'y':			np.float,
-  'degfreed':	np.int,
-  'elower':		np.float,
-  'usd':		np.int,
-  'tag':		np.int,
-  'qnfmt':		np.int,
-  'qnu1':		np.int,
-  'qnu2':		np.int,
-  'qnu3':		np.int,
-  'qnu4':		np.int,
-  'qnu5':		np.int,
-  'qnu6':		np.int,
-  'qnl1':		np.int,
-  'qnl2':		np.int,
-  'qnl3':		np.int,
-  'qnl4':		np.int,
-  'qnl5':		np.int,
-  'qnl6':		np.int,
+  'x':			np.float64,
+  'error':		np.float64,
+  'y':			np.float64,
+  'degfreed':	np.int64,
+  'elower':		np.float64,
+  'usd':		np.int64,
+  'tag':		np.int64,
+  'qnfmt':		np.int64,
+  'qnu1':		np.int64,
+  'qnu2':		np.int64,
+  'qnu3':		np.int64,
+  'qnu4':		np.int64,
+  'qnu5':		np.int64,
+  'qnu6':		np.int64,
+  'qnl1':		np.int64,
+  'qnl2':		np.int64,
+  'qnl3':		np.int64,
+  'qnl4':		np.int64,
+  'qnl5':		np.int64,
+  'qnl6':		np.int64,
 }
 
 lin_dtypes = {
-  'qnu1':		np.int,
-  'qnu2':		np.int,
-  'qnu3':		np.int,
-  'qnu4':		np.int,
-  'qnu5':		np.int,
-  'qnu6':		np.int,
-  'qnl1':		np.int,
-  'qnl2':		np.int,
-  'qnl3':		np.int,
-  'qnl4':		np.int,
-  'qnl5':		np.int,
-  'qnl6':		np.int,
-  'x':			np.float,
-  'error':		np.float,
-  'weight':		np.float,
+  'qnu1':		np.int64,
+  'qnu2':		np.int64,
+  'qnu3':		np.int64,
+  'qnu4':		np.int64,
+  'qnu5':		np.int64,
+  'qnu6':		np.int64,
+  'qnl1':		np.int64,
+  'qnl2':		np.int64,
+  'qnl3':		np.int64,
+  'qnl4':		np.int64,
+  'qnl5':		np.int64,
+  'qnl6':		np.int64,
+  'x':			np.float64,
+  'error':		np.float64,
+  'weight':		np.float64,
   'comment':	str,
 }
 
@@ -80,9 +82,6 @@ cat_widths = {
   'qnl6':		 2,
 }
 
-qnlabels =  ['qnu1', 'qnu2', 'qnu3', 'qnu4', 'qnu5', 'qnu6', 'qnl1', 'qnl2', 'qnl3', 'qnl4', 'qnl5', 'qnl6']
-
-## Egy Dataframe Format
 egy_widths = {
 	'iblk':		 6,
 	'indx':		 5,
@@ -100,19 +99,19 @@ egy_widths = {
 }
 
 egy_dtypes = {
-	'iblk':		np.int,
-	'indx':		np.int,
-	'egy':		np.float,
-	'err':		np.float,
-	'pmix':		np.float,
-	'we':		np.int,
-	':':		np.int,
-	'qn1':		np.int,
-	'qn2':		np.int,
-	'qn3':		np.int,
-	'qn4':		np.int,
-	'qn5':		np.int,
-	'qn6':		np.int,
+	'iblk':		np.int64,
+	'indx':		np.int64,
+	'egy':		np.float64,
+	'err':		np.float64,
+	'pmix':		np.float64,
+	'we':		np.int64,
+	':':		np.int64,
+	'qn1':		np.int64,
+	'qn2':		np.int64,
+	'qn3':		np.int64,
+	'qn4':		np.int64,
+	'qn5':		np.int64,
+	'qn6':		np.int64,
 }
 
 
@@ -124,16 +123,16 @@ def column_to_numeric(val, force_int=False):
 	val = val.strip()
 	if val == "" or val == ":":
 		if force_int:
-			return(np.iinfo(np.int).min)
+			return(np.iinfo(np.int64).min)
 		else:
 			return(np.nan)
 	elif val[0].isalpha():
 		val = str(ord(val[0].upper())-55)+val[1:]
 
 	if force_int:
-		return(np.int(val))
+		return(np.int64(val))
 	else:
-		return(np.float(val))
+		return(np.float64(val))
 
 def tmp_dir_name(dir):
 	i = 0
@@ -163,9 +162,9 @@ def cat_to_df(fname, sort=True):
 	
 	converters = cat_dtypes.copy()
 	converters.update({key: lambda x: column_to_numeric(x, True) for key in columns[5:20]})
-	data = pd.read_fwf(fname, widths=widths, names=columns, converters=converters, skip_blank_lines=True).astype(cat_dtypes)
+	data = pd.read_fwf(fname, widths=widths, names=columns, converters=converters, skip_blank_lines=True, comment="#").astype(cat_dtypes)
 	data["y"] = 10 ** data["y"]
-	data["filename"] = fname
+	data["filename"] = str(fname)
 	
 	if sort:
 		data.sort_values("x", inplace=True)
@@ -195,13 +194,13 @@ def lin_to_df(fname, sort=True):
 			data.append(tmp_line_content)
 	
 	data = pd.DataFrame(data, columns=column_names).astype(lin_dtypes)
-	data["filename"] = fname
+	data["filename"] = str(fname)
 	
 	## Set correct columns for data
 	qns_labels = column_names[0:12]
 	noq = len(qns_labels)
 	for i in range(len(qns_labels)):
-		if all(np.iinfo(np.int).min == data[qns_labels[i]]):
+		if all(np.iinfo(np.int64).min == data[qns_labels[i]]):
 			noq = i
 			break
 	noq = noq//2
@@ -224,7 +223,7 @@ def df_to_cat(df):
 
 		qnsstring = ""
 		for qnlabel in qnlabels:
-			if row[qnlabel] == np.iinfo(np.int).min:
+			if row[qnlabel] == np.iinfo(np.int64).min:
 				qnsstring += "  "
 			else:
 				qnsstring += f"{row[qnlabel]:2.0f}"
@@ -241,7 +240,7 @@ def df_to_lin(df):
 		qnsstring = ""
 		padstring = ""
 		for qnlabel in qnlabels:
-			if np.iinfo(np.int).min == row[qnlabel]:
+			if np.iinfo(np.int64).min == row[qnlabel]:
 				padstring += "   "
 			else:
 				qnsstring += f"{min(row[qnlabel], 999):3.0f}"
@@ -252,7 +251,11 @@ def df_to_lin(df):
 			if comment[:2] in [r"\\", r"//"]:
 				comment = comment[2:].strip()
 			comment = r"  // "+comment
-		lines.append(f"{qnsstring} {min(row['x'], 99999999.9999):13.4f} {min(row['error'], 999.9999):8.4f} {min(row['weight'], 99999999.9999):13.4f}{comment}")
+		
+		freq = minmax(row["x"], 0.0001, 99999999.9999)
+		error = minmax(row["error"], -99.9999, 999.9999)
+		weight = minmax(row["weight"], 0.0001, 99999999.9999)
+		lines.append(f"{qnsstring} {freq:13.4f} {error:8.4f} {weight:13.4f}{comment}")
 	lines.append("")
 	
 	return("\n".join(lines))
@@ -263,9 +266,9 @@ def egy_to_df(fname, sort=True):
 
 	converters = egy_dtypes.copy()
 	converters.update({key: lambda x: column_to_numeric(x, True) for key in column_names[-6:]})
-	data = pd.read_fwf(fname, widths=widths, names=columns, converters=converters, skip_blank_lines=True).astype(egy_dtypes)
+	data = pd.read_fwf(fname, widths=widths, names=columns, converters=converters, skip_blank_lines=True, comment="#").astype(egy_dtypes)
 	
-	data["filename"] = fname
+	data["filename"] = str(fname)
 	
 	if sort:
 		data.sort_values("egy", inplace=True)
@@ -465,106 +468,6 @@ def plot_bars(ys, xlabels, title="", xlabel="", ylabel=""):
 	return(fig)
 
 ## Main Actions
-def residuals(df_cat, df_lin, query_string=None, scatter_dict={}, head_number=20, save_fname=None):
-	df_merge = pd.merge(df_cat, df_lin, how="inner", on=[f"{tag}{i}" for tag in ("qnu", "qnl") for i in range(1, 7)])
-	df_merge["diff"] = df_merge["x_x"] - df_merge["x_y"]
-	df_merge["absdiff"] = abs(df_merge["diff"])
-
-	if query_string != None:
-		df_merge.query(query_string, inplace=True)
-	
-	xs = df_merge["x_y"].to_numpy()
-	ys = df_merge["diff"].to_numpy()
-	
-	fig, ax = plt.subplots()
-	sc = ax.scatter(xs, ys, **scatter_dict)
-	ax.set_xlabel("Frequency")
-	ax.set_ylabel("Diff")
-	
-	annot = ax.annotate("", xy=(0,0), xytext=(5, 5), textcoords="offset points", bbox=dict(boxstyle="round", fc="w"), fontsize=8)
-	annot.set_visible(False)
-	
-	def update_annot(ind):
-		pos = sc.get_offsets()[ind["ind"][0]]
-		annot.xy = pos
-		
-		text = []
-		for i in ind["ind"]:
-			row = df_merge.loc[i]
-			upper_state = []
-			lower_state = []
-			for j in range(6):
-				qnu = row[f"qnu{j+1}"]
-				qnl = row[f"qnl{j+1}"]
-				if qnu != np.iinfo(np.int).min and qnl != np.iinfo(np.int).min:
-					upper_state.append(str(int(qnu)))
-					lower_state.append(str(int(qnl)))
-			upper_state = ", ".join(upper_state)
-			lower_state = ", ".join(lower_state)
-			text.append(f"{upper_state} $\leftarrow$ {lower_state}")
-		
-		text = "\n".join(text)
-		annot.set_text(text)
-
-
-	def hover(event):
-		vis = annot.get_visible()
-		if event.inaxes == ax:
-			cont, ind = sc.contains(event)
-			if cont:
-				update_annot(ind)
-				annot.set_visible(True)
-			else:
-				annot.set_visible(False)					
-		else:
-			annot.set_visible(False)
-		fig.canvas.draw_idle()
-	
-	fig.canvas.mpl_connect("motion_notify_event", hover)
-	
-	
-	df_merge.sort_values("absdiff", inplace=True, ascending=False)
-	
-	print(df_merge[["x_x", "x_y", "diff", 'qnu1', 'qnu2', 'qnu3', 'qnu4', 'qnu5', 'qnu6', 'qnl1', 'qnl2', 'qnl3', 'qnl4', 'qnl5', 'qnl6']].head(head_number))
-	
-	plt.tight_layout()
-	if save_fname == None:
-		plt.show()
-	elif type(save_fname) == str:
-		plt.savefig(save_fname)
-
-	plt.close()
-
-	return(df_merge)
-
-def energy_levels(egy_df, states, kas, Jmax=60, red_fac=(4714.188+4235.085)/2, save_fname=None, annotate=False, kwargs_plot={}, colors_dict={}):
-	fig, ax = plt.subplots()
-	
-	for ka in kas:
-		for state in states:
-			for qnsum in (0, 1):
-				tmp_df = egy_df.query(f"qn2 == {ka} and qn4 == {state} and qn1 + {qnsum} == qn2+qn3 and qn1 < {Jmax}").copy()
-				tmp_df["yV"] = (tmp_df["egy"]*29979.2458-tmp_df["qn1"]*(tmp_df["qn1"]+1)*red_fac)/1e6
-				xs = tmp_df["qn1"].to_numpy()
-				ys = tmp_df["yV"].to_numpy()
-				color = colors_dict.get(state, "#000000")
-				marker = "." if qnsum == 0 else "+"
-				
-				ax.plot(xs, ys, color=color, marker = marker, **kwargs_plot)
-				if len(xs) > 0 and qnsum==0 and annotate==True:
-					ax.text(x=xs[0], y=ys[0], verticalalignment="center", horizontalalignment="right", transform=ax.transData, fontdict={"color":color, "size":8}, s=f"$K_{{a}}={ka}$  ")
-	
-	ax.set_xlabel(r"$J$")
-	ax.set_ylabel(r"$E_{red}$ [$10^{3}$ GHz]")
-	
-	plt.tight_layout()
-	if save_fname == None:
-		plt.show()
-	elif type(save_fname) == str:
-		plt.savefig(path_save)
-
-	plt.close()
-
 def check_crossings(egy_df, states, kas, Jmax=60):
 	output = []
 	series_list = []
@@ -724,8 +627,6 @@ def ommit_parameter(par_dict, lin_df, param_candidates, spfit_path=None, save_fn
 
 if __name__ == "__main__":
 	pass
-
-	## Here are some examples (currently commented out)
 	
 	# var_dict = parvar_to_dict(r"path/to/your/project/molecule.var")
 	# par_dict = parvar_to_dict(r"path/to/your/project/molecule.par")
@@ -738,18 +639,12 @@ if __name__ == "__main__":
 	# cands = [[140101, 0.0, 1e+37], [410101, 0.0, 1e+37]]
 	# add_parameter(par_dict, lin_df, cands, r"SPFIT_SPCAT")
 	
-	# Best Candidate to neglect from Fit
+	## Best Candidate to neglect from Fit
 	# cands = [320101, 230101]
 	# ommit_parameter(par_dict, lin_df, cands, r"SPFIT_SPCAT")
-	
-	## Plot Energies
-	# energy_levels(egy_df, [1], range(10))
 	
 	## Check Crossings
 	# check_crossings(egy_df, [1], range(10))
 	
 	## Plot Mixing Coefficients
 	# mixing_coefficient(egy_df, "qn4 == 1 and qn2 < 20 and qn1 < 20 and qn1==qn2+qn3")
-
-	## Residuals
-	# residuals(cat_df, lin_df)
