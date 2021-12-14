@@ -22,34 +22,27 @@ egy_df = egy_to_df(r"path/to/your/project/molecule.egy")
 ```
 
 ## Best Candidate to add to Fit
+
 ```python
 cands = [[140101, 0.0, 1e+37], [410101, 0.0, 1e+37]]
 add_parameter(par_dict, lin_df, cands, r"SPFIT_SPCAT")
 ```
 
 ## Best Candidate to neglect from Fit
+
 ```python
 cands = [320101, 230101]
 ommit_parameter(par_dict, lin_df, cands, r"SPFIT_SPCAT")
 ```
 
-## Plot Energies
-
-```python
-energy_levels(egy_df, [1], range(10))
-```
-
 ## Check Crossings
+
 ```python
 check_crossings(egy_df, [1], range(10))
 ```
 
 ## Plot Mixing Coefficients
+
 ```python
 mixing_coefficient(egy_df, "qn4 == 1 and qn2 < 20 and qn1 < 20 and qn1==qn2+qn3")
-```
-
-## Residuals
-```python
-residuals(cat_df, lin_df)
 ```
