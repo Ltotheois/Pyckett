@@ -216,7 +216,7 @@ def df_to_cat(df):
 	lines = []
 
 	for index, row in df.iterrows():
-		freq = minmax(row["x"], 0.0001, 99999999.9999)
+		freq = minmax(row["x"], -9999999.9999, 99999999.9999)
 		error = minmax(row["error"], -99.9999, 999.9999)
 		intens = np.log10(row["y"]) if row["y"] > 0 else 0
 		intens = minmax(intens, -99.999, 999.9999)
@@ -252,9 +252,9 @@ def df_to_lin(df):
 				comment = comment[2:].strip()
 			comment = r"  // "+comment
 		
-		freq = minmax(row["x"], 0.0001, 99999999.9999)
+		freq = minmax(row["x"], -9999999.9999, 99999999.9999)
 		error = minmax(row["error"], -99.9999, 999.9999)
-		weight = minmax(row["weight"], 0.0001, 99999999.9999)
+		weight = minmax(row["weight"], -9999999.9999, 99999999.9999)
 		lines.append(f"{qnsstring} {freq:13.4f} {error:8.4f} {weight:13.4f}{comment}")
 	lines.append("")
 	
