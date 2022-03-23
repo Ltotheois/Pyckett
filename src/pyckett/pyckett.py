@@ -265,7 +265,7 @@ def egy_to_df(fname, sort=True):
 	columns = list(egy_dtypes.keys())
 
 	converters = egy_dtypes.copy()
-	converters.update({key: lambda x: column_to_numeric(x, True) for key in column_names[-6:]})
+	converters.update({key: lambda x: column_to_numeric(x, True) for key in columns[-6:]})
 	data = pd.read_fwf(fname, widths=widths, names=columns, converters=converters, skip_blank_lines=True, comment="#").astype(egy_dtypes)
 	
 	data["filename"] = str(fname)
