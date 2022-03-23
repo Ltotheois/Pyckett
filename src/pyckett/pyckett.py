@@ -105,7 +105,7 @@ egy_dtypes = {
 	'err':		np.float64,
 	'pmix':		np.float64,
 	'we':		np.int64,
-	':':		np.int64,
+	':':		str,
 	'qn1':		np.int64,
 	'qn2':		np.int64,
 	'qn3':		np.int64,
