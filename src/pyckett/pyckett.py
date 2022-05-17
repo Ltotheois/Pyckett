@@ -245,17 +245,12 @@ def df_to_lin(df):
 			else:
 				qnsstring += f"{min(row[qnlabel], 999):3.0f}"
 		qnsstring = qnsstring + padstring
-		comment = ""
-		if row["comment"]:
-			comment = row["comment"].strip()
-			if comment[:2] in [r"\\", r"//"]:
-				comment = comment[2:].strip()
-			comment = r"  // "+comment
+		comment = row["comment"].strip() if row["comment"] else ""
 		
 		freq = minmax(row["x"], -9999999.9999, 99999999.9999)
 		error = minmax(row["error"], -99.9999, 999.9999)
 		weight = minmax(row["weight"], -9999999.9999, 99999999.9999)
-		lines.append(f"{qnsstring} {freq:13.4f} {error:8.4f} {weight:13.4f}{comment}")
+		lines.append(f"{qnsstring} {freq:13.4f} {error:8.4f} {weight:13.4f}  {comment}")
 	lines.append("")
 	
 	return("\n".join(lines))
