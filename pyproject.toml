@@ -1,6 +1,20 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
+requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyckett"
+version = "0.1.2"
+description = "A wrapper around Pickett's SPFIT and SPCAT"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = ["Pickett", "Spectroscopy"]
+dependencies = ["pandas", "numpy", "matplotlib",]
+requires-python = ">=3.6"
+
+[project.urls]
+Homepage = "https://github.com/Ltotheois/Pyckett"

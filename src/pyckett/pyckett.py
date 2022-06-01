@@ -115,6 +115,8 @@ egy_dtypes = {
 }
 
 
+SENTINEL = np.iinfo(np.int64).min
+
 # Helper functions
 def str_to_stream(string):
 	return(io.StringIO(string))
@@ -123,7 +125,7 @@ def column_to_numeric(val, force_int=False):
 	val = val.strip()
 	if val == "" or val == ":" or val == len(val)*"*":
 		if force_int:
-			return(np.iinfo(np.int64).min)
+			return(SENTINEL)
 		else:
 			return(np.nan)
 	elif val[0].isalpha():
@@ -148,12 +150,35 @@ def rmdir(dir):
 		os.remove(os.path.join(dir, file))
 	os.rmdir(dir)
 
-def minmax(value, min=None, max=None):
-	if min and value < min:
-		return(min)
-	if max and value > max:
-		return(max)
-	return(value)
+def format_(value, formatspecifier):
+	integer = formatspecifier.endswith("d")
+	
+	if integer:
+		totallength, decimals = int(formatspecifier[:-1]), 0
+	else:
+		tmp = formatspecifier[:-1].split(".")
+		totallength, decimals = map(int, tmp)
+	
+	if integer:
+		value = int(value)
+	
+	negative = (value < 0)
+	integerlength = totallength - negative - decimals - (decimals != 0)
+	
+	maxvalue = 10**integerlength
+	maxascii = maxvalue * 3.6
+	
+	if abs(value) < maxvalue:
+		return((f"{{:{formatspecifier}}}".format(value)))
+	
+	elif integer and abs(value) < maxascii:
+		firsttwodigits = value // 10 ** (int(np.log10(value)) - 1)
+		tmp = chr(55 + firsttwodigits)
+		return((tmp + f"{{:{formatspecifier}}}".format(value)[2:]))
+		
+	else:
+		return((f"{{:{formatspecifier}}}".format((maxvalue-0.1**decimals)*(-1)**negative)))
+	
 
 # Format functions
 def cat_to_df(fname, sort=True):
@@ -200,7 +225,7 @@ def lin_to_df(fname, sort=True):
 	qns_labels = column_names[0:12]
 	noq = len(qns_labels)
 	for i in range(len(qns_labels)):
-		if all(np.iinfo(np.int64).min == data[qns_labels[i]]):
+		if all(SENTINEL == data[qns_labels[i]]):
 			noq = i
 			break
 	noq = noq//2
@@ -216,19 +241,25 @@ def df_to_cat(df):
 	lines = []
 
 	for index, row in df.iterrows():
-		freq = minmax(row["x"], -9999999.9999, 99999999.9999)
-		error = minmax(row["error"], -99.9999, 999.9999)
+		freq = format_(row["x"], "13.4f")
+		error = format_(row["error"], "8.4f")
 		intens = np.log10(row["y"]) if row["y"] > 0 else 0
-		intens = minmax(intens, -99.999, 999.9999)
+		intens = format_(intens, "8.4f")
+		dof = format_(row["degfreed"], "2d")
+		elower = format_(row["elower"], "10.4f")
+		usd = format_(row["usd"], "3d")
+		tag = format_(row["tag"], "7d")
+		qnfmt = format_(row["qnfmt"], "4d")
 
 		qnsstring = ""
 		for qnlabel in qnlabels:
-			if row[qnlabel] == np.iinfo(np.int64).min:
+			qn = row[qnlabel]
+			if qn == SENTINEL:
 				qnsstring += "  "
 			else:
-				qnsstring += f"{row[qnlabel]:2.0f}"
+				qnsstring += format_(row[qnlabel], "2d")
 
-		lines.append(f"{freq:13.4f}{error:8.4f}{intens:8.4f}{row['degfreed']:2.0f}{row['elower']:10.4f}{row['usd']:3.0f}{row['tag']:7.0f}{row['qnfmt']:4.0f}{qnsstring}")
+		lines.append(f"{freq}{error}{intens}{dof}{elower}{usd}{tag}{qnfmt}{qnsstring}")
 	lines.append("\n")
 	
 	return("\n".join(lines))
@@ -240,17 +271,17 @@ def df_to_lin(df):
 		qnsstring = ""
 		padstring = ""
 		for qnlabel in qnlabels:
-			if np.iinfo(np.int64).min == row[qnlabel]:
+			if SENTINEL == row[qnlabel]:
 				padstring += "   "
 			else:
-				qnsstring += f"{min(row[qnlabel], 999):3.0f}"
+				qnsstring += format_(row[qnlabel],"3d")
 		qnsstring = qnsstring + padstring
 		comment = row["comment"].strip() if row["comment"] else ""
 		
-		freq = minmax(row["x"], -9999999.9999, 99999999.9999)
-		error = minmax(row["error"], -99.9999, 999.9999)
-		weight = minmax(row["weight"], -9999999.9999, 99999999.9999)
-		lines.append(f"{qnsstring} {freq:13.4f} {error:8.4f} {weight:13.4f}  {comment}")
+		freq = format_(row["x"], "13.4f")
+		error = format_(row["error"], "8.4f")
+		weight = format_(row["weight"], "13.4f")
+		lines.append(f"{qnsstring} {freq} {error} {weight}  {comment}")
 	lines.append("")
 	
 	return("\n".join(lines))
