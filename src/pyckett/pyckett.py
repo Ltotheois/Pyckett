@@ -460,6 +460,18 @@ def run_spcat_v(var_dict, int_dict, spcat_path):
 	rmdir(tmp_dir)
 	return(result)
 
+def get_active_qns(df):
+	if not len(df):
+		raise ValueError(f"You are trying to get the active quantum numbers of an empty dataframe.")
+	
+	qns = {f"qn{ul}{i+1}": True for ul in ("u", "l") for i in range(6)}
+	for qn in qns.keys():
+		unique_values = df[qn].unique()
+		if len(unique_values) == 1 and unique_values[0] == SENTINEL:
+			qns[qn] = False
+	
+	return(qns)
+
 def parse_fit_result(msg):
 	results = {}
 	
@@ -650,6 +662,37 @@ def ommit_parameter(par_dict, lin_df, param_candidates, spfit_path=None, save_fn
 	
 	return(runs)
 
+def finalize_cat(cat_df, lin_df=[], qn_tdict={}, qn=4):
+	# Merge cat and lin file
+	if len(lin_df):
+		lin_qns, cat_qns = get_active_qns(lin_df), get_active_qns(cat_df)
+		lin_qns = set([key for key, value in lin_qns.items() if value])
+		cat_qns = set([key for key, value in cat_qns.items() if value])
+		
+		if lin_qns != cat_qns:
+			raise ValueError(f"The active quantum numbers of the lin and cat file do not match.\nQuantum numbers of the cat file: {cat_qns}\nQuantum numbers of the lin file: {lin_qns}")
+		
+		lin_df = lin_df.drop(set(lin_df.columns) - lin_qns - set("x"), axis=1)
+		cat_df = pd.merge(cat_df, lin_df, how="left", on=list(cat_qns))
+		
+		mask = ~cat_df["x_y"].isna()
+		cat_df.loc[mask, "x_x"] = cat_df.loc[mask, "x_y"]
+		cat_df.loc[mask, "tag"] = -abs(cat_df.loc[mask, "tag"])
+		cat_df = cat_df.drop("x_y", axis=1)
+		cat_df = cat_df.rename({"x_x": "x"}, axis=1)
+	
+	# Sum up duplicate rows
+	cat_df = cat_df.groupby(list(set(cat_df.columns) - set("x"))).agg(lambda x: x.iloc[0] if len(x) == 1 else np.log10(np.sum(10**x))).reset_index()
+	cat_df = cat_df.sort_values("x").reset_index(drop=True)
+	
+	# Translate quantum numbers for the state
+	if qn_tdict and qn:
+		qnu, qnl = f"qnu{qn}", f"qnl{qn}"
+		cat_df["tmp"] = cat_df.apply(lambda row: qn_tdict[(row[qnu], row[qnl])], axis=1)
+		cat_df[qnu] = cat_df[qnl] = cat_df["tmp"]
+		cat_df.drop("tmp", axis=1)
+	
+	return(cat_df)
 
 if __name__ == "__main__":
 	pass
