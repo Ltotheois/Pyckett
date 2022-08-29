@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyckett"
-version = "0.1.2"
+version = "0.1.4"
 description = "A wrapper around Pickett's SPFIT and SPCAT"
 readme = "README.md"
 classifiers = [
