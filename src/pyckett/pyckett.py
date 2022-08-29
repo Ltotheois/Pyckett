@@ -114,6 +114,19 @@ egy_dtypes = {
 	'qn6':		np.int64,
 }
 
+# IS1,IS2,JQ,NQ,J,NN,FREQ,BLE,ER
+erham_dtypes = {
+	"is1": np.int64, 
+	"is2": np.int64,
+	"qnu1": np.int64,
+	"tauu": np.int64,
+	"qnl1": np.int64,
+	"taul": np.int64,
+	"x": np.float64,
+	"weight": np.float64,
+	"error": np.float64,
+	"comment": str,
+}
 
 SENTINEL = np.iinfo(np.int64).min
 
@@ -462,7 +475,7 @@ def run_spcat_v(var_dict, int_dict, spcat_path):
 
 def get_active_qns(df):
 	if not len(df):
-		raise ValueError(f"You are trying to get the active quantum numbers of an empty dataframe.")
+		raise Exception(f"You are trying to get the active quantum numbers of an empty dataframe.")
 	
 	qns = {f"qn{ul}{i+1}": True for ul in ("u", "l") for i in range(6)}
 	for qn in qns.keys():
@@ -662,18 +675,21 @@ def ommit_parameter(par_dict, lin_df, param_candidates, spfit_path=None, save_fn
 	
 	return(runs)
 
-def finalize_cat(cat_df, lin_df=[], qn_tdict={}, qn=4):
+def finalize(cat_df=pd.DataFrame(), lin_df=pd.DataFrame(), qn_tdict={}, qn=4):
+	cat_df = cat_df.copy()
+	lin_df = lin_df.copy()
+	
 	# Merge cat and lin file
-	if len(lin_df):
+	if len(lin_df) and len(cat_df):
 		lin_qns, cat_qns = get_active_qns(lin_df), get_active_qns(cat_df)
 		lin_qns = set([key for key, value in lin_qns.items() if value])
 		cat_qns = set([key for key, value in cat_qns.items() if value])
 		
 		if lin_qns != cat_qns:
-			raise ValueError(f"The active quantum numbers of the lin and cat file do not match.\nQuantum numbers of the cat file: {cat_qns}\nQuantum numbers of the lin file: {lin_qns}")
+			raise Exception(f"The active quantum numbers of the lin and cat file do not match.\nQuantum numbers of the cat file: {cat_qns}\nQuantum numbers of the lin file: {lin_qns}")
 		
-		lin_df = lin_df.drop(set(lin_df.columns) - lin_qns - set("x"), axis=1)
-		cat_df = pd.merge(cat_df, lin_df, how="left", on=list(cat_qns))
+		tmp_lin_df = lin_df.drop(set(lin_df.columns) - lin_qns - set("x"), axis=1)
+		cat_df = pd.merge(cat_df, tmp_lin_df, how="left", on=list(cat_qns))
 		
 		mask = ~cat_df["x_y"].isna()
 		cat_df.loc[mask, "x_x"] = cat_df.loc[mask, "x_y"]
@@ -682,17 +698,62 @@ def finalize_cat(cat_df, lin_df=[], qn_tdict={}, qn=4):
 		cat_df = cat_df.rename({"x_x": "x"}, axis=1)
 	
 	# Sum up duplicate rows
-	cat_df = cat_df.groupby(list(set(cat_df.columns) - set("x"))).agg(lambda x: x.iloc[0] if len(x) == 1 else np.log10(np.sum(10**x))).reset_index()
-	cat_df = cat_df.sort_values("x").reset_index(drop=True)
+	if len(cat_df):
+		cat_df = cat_df.groupby(list(set(cat_df.columns) - set("x"))).agg(lambda x: x.iloc[0] if len(x) == 1 else np.log10(np.sum(10**x))).reset_index()
+		cat_df = cat_df.sort_values("x").reset_index(drop=True)
 	
 	# Translate quantum numbers for the state
 	if qn_tdict and qn:
 		qnu, qnl = f"qnu{qn}", f"qnl{qn}"
-		cat_df["tmp"] = cat_df.apply(lambda row: qn_tdict[(row[qnu], row[qnl])], axis=1)
-		cat_df[qnu] = cat_df[qnl] = cat_df["tmp"]
-		cat_df.drop("tmp", axis=1)
+		if len(cat_df):
+			if qnu not in cat_qns or qnl not in cat_qns:
+				raise Exception(f"The quantum numbers for the state translation, '{qnl}' and '{qnu}', are no active quantum numbers in the cat file.")
+			cat_df["tmp"] = cat_df.apply(lambda row: qn_tdict[(row[qnu], row[qnl])], axis=1)
+			cat_df[qnu] = cat_df[qnl] = cat_df["tmp"]
+			cat_df.drop("tmp", axis=1)
 	
-	return(cat_df)
+		if len(lin_df):
+			if qnu not in lin_qns or qnl not in lin_qns:
+				raise Exception(f"The quantum numbers for the state translation, '{qnl}' and '{qnu}', are no active quantum numbers in the lin file.")
+			lin_df["tmp"] = lin_df.apply(lambda row: qn_tdict[(row[qnu], row[qnl])], axis=1)
+			lin_df[qnu] = lin_df[qnl] = lin_df["tmp"]
+			lin_df.drop("tmp", axis=1)
+	
+	return(cat_df, lin_df)
+
+def erhamlines_to_df(fname, sort=True):
+	noc = len(erham_dtypes)
+	data = []
+	tmp_file = open(fname, "r") if not isinstance(fname, io.StringIO) else fname
+	with tmp_file as file:
+		for line in file:
+			if line.strip() == "" or line.startswith("#"):
+				continue
+			
+			
+			tmp = line.split(maxsplit=noc-1)
+			if len(tmp) == noc-1:
+				tmp.append("")
+			
+			data.append(tmp)
+	
+	column_names = list(erham_dtypes.keys())
+	data = pd.DataFrame(data, columns=column_names).astype(erham_dtypes)
+	
+	data["qnu2"] = data["tauu"] // 2
+	data["qnl2"] = data["taul"] // 2
+	
+	data["qnu3"] = data["qnu1"] - (data["tauu"] - 1) // 2
+	data["qnl3"] = data["qnl1"] - (data["taul"] - 1) // 2
+	
+	data["qnu4"] = data["is1"]
+	data["qnl4"] = data["is2"]
+	
+	data["qnu5"] = data["qnu6"] = data["qnl5"] = data["qnl6"] = SENTINEL
+	
+	data["filename"] = str(fname)
+	
+	return(data)
 
 if __name__ == "__main__":
 	pass

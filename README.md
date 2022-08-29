@@ -20,6 +20,8 @@ int_dict = pyckett.int_to_dict(r"path/to/your/project/molecule.int")
 lin_df = pyckett.lin_to_df(r"path/to/your/project/molecule.lin")
 cat_df = pyckett.cat_to_df(r"path/to/your/project/molecule.cat")
 egy_df = pyckett.egy_to_df(r"path/to/your/project/molecule.egy")
+
+erham_df = pyckett.erhamlines_to_df(r"path/to/your/project/molecule.in")
 ```
 
 ## Best Candidate to add to Fit
@@ -41,7 +43,7 @@ pyckett.ommit_parameter(par_dict, lin_df, cands, r"SPFIT_SPCAT")
 This function merges the cat and lin dataframes, sums up duplicate values in the cat file and allows to translate quantum numbers:
 
 ```python
-fin_cat_df = pyckett.finalize_cat(cat_df, lin_df, qn_tdict, qn)
+fin_cat_df, fin_lin_df = pyckett.finalize(cat_df, lin_df, qn_tdict, qn)
 ```
 
 ## Check Crossings
