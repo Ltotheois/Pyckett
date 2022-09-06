@@ -688,18 +688,20 @@ def finalize(cat_df=pd.DataFrame(), lin_df=pd.DataFrame(), qn_tdict={}, qn=4):
 		if lin_qns != cat_qns:
 			raise Exception(f"The active quantum numbers of the lin and cat file do not match.\nQuantum numbers of the cat file: {cat_qns}\nQuantum numbers of the lin file: {lin_qns}")
 		
-		tmp_lin_df = lin_df.drop(set(lin_df.columns) - lin_qns - set("x"), axis=1)
+		tmp_lin_df = lin_df.drop(set(lin_df.columns) - lin_qns - set(("x", "error")), axis=1)
 		cat_df = pd.merge(cat_df, tmp_lin_df, how="left", on=list(cat_qns))
 		
 		mask = ~cat_df["x_y"].isna()
 		cat_df.loc[mask, "x_x"] = cat_df.loc[mask, "x_y"]
+		cat_df.loc[mask, "error_x"] = cat_df.loc[mask, "error_y"]
 		cat_df.loc[mask, "tag"] = -abs(cat_df.loc[mask, "tag"])
-		cat_df = cat_df.drop("x_y", axis=1)
-		cat_df = cat_df.rename({"x_x": "x"}, axis=1)
+		cat_df = cat_df.drop(["x_y", "error_y"], axis=1)
+		cat_df = cat_df.rename({"x_x": "x", "error_x": "error"}, axis=1)
+	
 	
 	# Sum up duplicate rows
 	if len(cat_df):
-		cat_df = cat_df.groupby(list(set(cat_df.columns) - set("x"))).agg(lambda x: x.iloc[0] if len(x) == 1 else np.log10(np.sum(10**x))).reset_index()
+		cat_df = cat_df.groupby(list(set(cat_df.columns) - set("y"))).sum().reset_index()
 		cat_df = cat_df.sort_values("x").reset_index(drop=True)
 	
 	# Translate quantum numbers for the state
