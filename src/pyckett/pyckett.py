@@ -485,6 +485,36 @@ def get_active_qns(df):
 	
 	return(qns)
 
+def get_dr_candidates(df1, df2):
+	qns_active1, qns_active2 = get_active_qns(df1), get_active_qns(df2)
+	qns_upper = [f"qnu{i+1}" for i in range(6) if qns_active1[f"qnu{i+1}"] and qns_active2[f"qnu{i+1}"]]
+	qns_lower = [f"qnl{i+1}" for i in range(6) if qns_active1[f"qnl{i+1}"] and qns_active2[f"qnl{i+1}"]]
+
+	qns_inactive = [f"qn{ul}{i+1}" for i in range(6) for ul in ("u", "l") if not (qns_active1[f"qnu{i+1}"] and qns_active2[f"qnu{i+1}"])]
+
+	schemes = {
+		"pro_ul": (qns_upper, qns_lower),
+		"pro_lu": (qns_lower, qns_upper),
+		"reg_uu": (qns_upper, qns_upper),
+		"reg_ll": (qns_lower, qns_lower)
+	}
+	
+	results = []
+	for label, (qns_left, qns_right) in schemes.items():
+		tmp = pd.merge(df1.drop(columns=qns_inactive), df2.drop(columns=qns_inactive), how="inner", left_on=qns_left, right_on=qns_right)
+		tmp["scheme"] = label
+		results.append(tmp)
+	
+	results = pd.concat(results, ignore_index=True)
+	results = results[results["x_x"] != results["x_y"]]
+	
+	for qn in qns_upper + qns_lower:
+		mask = (results[qn+"_x"].isna() & results[qn+"_y"].isna())
+		results.loc[mask, qn+"_x"] = results.loc[mask, qn+"_y"] = results.loc[mask, qn]
+	results = results.drop(columns=qns_upper).drop(columns=qns_lower).reset_index(drop=True)
+	
+	return(results)
+
 def parse_fit_result(msg):
 	results = {}
 	

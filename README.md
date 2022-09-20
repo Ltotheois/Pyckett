@@ -46,6 +46,15 @@ This function merges the cat and lin dataframes, sums up duplicate values in the
 fin_cat_df, fin_lin_df = pyckett.finalize(cat_df, lin_df, qn_tdict, qn)
 ```
 
+## Find candidates for double-resonance measurement
+
+This function finds possible transition arrangements for double-resonance measurements.
+Input two cat dataframes with the transitions that are in the range of your probe and pump source.
+
+```python
+results_df = pyckett.get_dr_candidates(cat_df1, cat_df2)
+```
+
 ## Check Crossings
 
 ```python
