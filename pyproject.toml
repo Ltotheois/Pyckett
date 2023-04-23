@@ -1,20 +1,32 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyckett"
-version = "0.1.4"
+version = "0.1.10"
+authors = [
+  { name="Luis Bonah", email="bonah@ph1.uni-koeln.de" },
+]
 description = "A wrapper around Pickett's SPFIT and SPCAT"
 readme = "README.md"
+requires-python = ">=3.7"
+dependencies = ['numpy', 'pandas', 'matplotlib']
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+	"Programming Language :: Python :: 3",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: OS Independent",
 ]
-keywords = ["Pickett", "Spectroscopy"]
-dependencies = ["pandas", "numpy", "matplotlib",]
-requires-python = ">=3.6"
+keywords = ["pickett", "spectroscopy", "spfit", "spcat"]
+
 
 [project.urls]
-Homepage = "https://github.com/Ltotheois/Pyckett"
+"Homepage" = "https://github.com/Ltotheois/Pyckett/"
+
+[project.scripts]
+pyckett_add = "pyckett.clitools:addparameters"
+pyckett_omit = "pyckett.clitools:omitparameters"
+pyckett_separatefits = "pyckett.clitools:separatefits"
+pyckett_uncertainties = "pyckett.clitools:uncertainties"
+pyckett_partitionfunction = "pyckett.clitools:partitionfunction"
+pyckett_auto = "pyckett.clitools:automaticfit"

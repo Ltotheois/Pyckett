@@ -35,7 +35,7 @@ pyckett.add_parameter(par_dict, lin_df, cands, r"SPFIT_SPCAT")
 
 ```python
 cands = [320101, 230101]
-pyckett.ommit_parameter(par_dict, lin_df, cands, r"SPFIT_SPCAT")
+pyckett.omit_parameter(par_dict, lin_df, cands, r"SPFIT_SPCAT")
 ```
 
 ## Finalize cat file
@@ -46,7 +46,7 @@ This function merges the cat and lin dataframes, sums up duplicate values in the
 fin_cat_df, fin_lin_df = pyckett.finalize(cat_df, lin_df, qn_tdict, qn)
 ```
 
-## Find candidates for double-resonance measurement
+## Find candidates for double-resonance measurements
 
 This function finds possible transition arrangements for double-resonance measurements.
 Input two cat dataframes with the transitions that are in the range of your probe and pump source.
