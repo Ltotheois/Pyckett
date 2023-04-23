@@ -8,12 +8,23 @@ Install the package with pip by using the following command
 pip install pyckett
 ```
 
+# CLI Tools
+
+Pyckett provides a set of command line utilities which perform common steps of an iterative fitting process.
+
+*pyckett_add* helps adding new parameters to the fit, *pyckett_omit* is used for evaluating which parameters can be omitted.
+*pyckett_separatefits* can be used to separate a global fit into separate fits for each state.
+*pyckett_uncertainties* evaluates the uncertainties of the parameters.
+*pyckett_partitionfunction* calculates the partition function for different temperatures.
+*pyckett_auto* automatically builds up the Hamiltonian step by step.
+
+See the respective help functions (by adding *--help* after the command) to see their syntax.
+
 # Examples
 
 You can read files from the SPFIT/SPCAT universe with the following syntax
 
 ```python
-import pyckett
 var_dict = pyckett.parvar_to_dict(r"path/to/your/project/molecule.var")
 par_dict = pyckett.parvar_to_dict(r"path/to/your/project/molecule.par")
 int_dict = pyckett.int_to_dict(r"path/to/your/project/molecule.int")
