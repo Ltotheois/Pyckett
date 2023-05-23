@@ -24,6 +24,7 @@ SPFIT_PATH = os.environ.get("PYCKETT_SPFIT_PATH")
 SPCAT_PATH = os.environ.get("PYCKETT_SPCAT_PATH")
 
 QNLABELS = ['qnu1', 'qnu2', 'qnu3', 'qnu4', 'qnu5', 'qnu6', 'qnl1', 'qnl2', 'qnl3', 'qnl4', 'qnl5', 'qnl6']
+QNLABELS_ENERGY = ['qn1', 'qn2', 'qn3', 'qn4', 'qn5', 'qn6']
 
 class pickett_int(np.int64):
 	def __new__(cls, value):
@@ -397,7 +398,7 @@ def df_to_cat(df):
 				qnsstring += format_(row[qnlabel], "2d")
 
 		lines.append(f"{freq}{error}{intens}{dof}{elower}{usd}{tag}{qnfmt}{qnsstring}")
-	lines.append("\n")
+	lines.append("")
 	
 	return("\n".join(lines))
 
@@ -436,6 +437,30 @@ def egy_to_df(fname, sort=True):
 	if sort:
 		data.sort_values("egy", inplace=True)
 	return(data)
+
+def df_to_egy(df):
+	lines = []
+
+	for index, row in df.iterrows():
+		iblk = format_(row["iblk"], "5d")
+		indx = format_(row["indx"], "5d")
+		egy  = format_(row["egy"], "18.6f")
+		err  = format_(row["err"], "18.6f")
+		pmix = format_(row["pmix"], "11.6f")
+		we   = format_(row["we"], "5d")
+
+		qnsstring = ""
+		for qnlabel in QNLABELS_ENERGY:
+			qn = row[qnlabel]
+			if qn == SENTINEL:
+				qnsstring += "   "
+			else:
+				qnsstring += format_(row[qnlabel], "3d")
+
+		lines.append(f" {iblk}{indx}{egy}{err}{pmix}{we}:{qnsstring}")
+	lines.append("")
+	
+	return("\n".join(lines))
 
 def parvar_to_dict(fname):
 	result = {}
