@@ -28,23 +28,24 @@ QNLABELS_ENERGY = ['qn1', 'qn2', 'qn3', 'qn4', 'qn5', 'qn6']
 
 class pickett_int(np.int64):
 	def __new__(cls, value):
-		if np.issubdtype(type(value), np.integer):
+		if type(value) is np.int64:
 			return(value)
 		
 		value = value.strip()
-		
 		if not value:
 			return(SENTINEL)
 
+		init_char = value[0]
+		if init_char.isnumeric():
+			return np.int64(value)
+		
+		elif init_char.isalpha():
+			return np.int64(str(ord(init_char.upper())-55) + value[1:])
+			
 		# Special case for ERHAM cat files
 		# ERHAM writes ** for quantum numbers higher than 99
-		if all([x == "*" for x in value]):
-			return(99)
-
-		if value[0].isalpha():
-			value = str(ord(value[0].upper())-55)+value[1:]
-		
-		return super().__new__(cls, value)
+		elif all([x == "*" for x in value]):
+			return(np.int64(99))
 
 
 cat_dtypes = {
