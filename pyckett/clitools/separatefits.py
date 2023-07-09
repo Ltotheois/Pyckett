@@ -86,7 +86,8 @@ def separatefits():
 		tmp_par = par.copy()
 		
 		if not args.keepqns:
-			tmp_par['NVIB'] = max(2, len(states))
+			sign_nvib = -1 if tmp_par['NVIB'] < 0 else 1
+			tmp_par['NVIB'] = max(2, len(states)) * sign_nvib
 			new_vib_digits = pyckett.get_vib_digits(tmp_par) 
 			new_all_states = pyckett.get_all_states(new_vib_digits)
 			

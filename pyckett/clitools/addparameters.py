@@ -142,11 +142,11 @@ def addparameters_core(par, lin, VIB_DIGITS=1, ALL_STATES=9, qnu='qnu4', qnl='qn
 		interstate_cands.update(update_base_states(ud, pyckett.INITIAL_PARAMS_INTERACTION))
 
 	rotational_cands = rotational_cands - present_params
-	get_comment = lambda id: ROTATIONAL_PARAMS[pyckett.format_param_id(pyckett.parse_param_id(id, VIB_DIGITS), 0)][0]
+	get_comment = lambda id: ROTATIONAL_PARAMS.get(pyckett.format_param_id(pyckett.parse_param_id(id, VIB_DIGITS), 0), ("",))[0]
 	rotational_cands = [(id, get_comment(id)) for id in rotational_cands]
 	
 	interstate_cands = interstate_cands - present_params
-	get_comment = lambda id: INTERSTATE_PARAMS[pyckett.format_param_id(pyckett.parse_param_id(id, VIB_DIGITS), 0)][0]
+	get_comment = lambda id: INTERSTATE_PARAMS.get(pyckett.format_param_id(pyckett.parse_param_id(id, VIB_DIGITS), 0), ("",))[0]
 	interstate_cands = [(id, get_comment(id)) for id in interstate_cands]	
 	
 	candidates = []
