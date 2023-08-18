@@ -159,9 +159,11 @@ erham_dtypes = {
 	"comment":	str,
 }
 
+# If NPAR and NLINE are too large it causes problems with spfit and spcat compiled for MacOs
+# If NPAR and NLINE should be set bigger, this can be done safely with scientific notation
 PARUPDATE = {
-	"NPAR": 1E6,
-	"NLINE": 1E6,
+	"NPAR": 999999,
+	"NLINE": 999999,
 	"NITR": 20,
 	"THRESH ": 0,
 }
@@ -512,7 +514,7 @@ def dict_to_parvar(dct):
 	output = []
 	output.append(dct["TITLE"])
 	
-	formats = ['{:4.0f}', ' {:7.0f}', ' {:5.0f}', ' {:4.0f}', '   {: .4e}', '   {: .4e}', '   {: .4e}', ' {:13.4f}']
+	formats = ['{:4.0f}', ' {:6.0f}', ' {:5.0f}', ' {:4.0f}', '   {: .4e}', '   {: .4e}', '   {: .4e}', ' {:13.4f}']
 	
 	values = [dct[key] for key in ['NPAR', 'NLINE', 'NITR', 'NXPAR', 'THRESH', 'ERRTST', 'FRAC', 'CAL'] if key in dct]
 	line = "".join([fs.format(x) for x, fs in zip(values, formats)])

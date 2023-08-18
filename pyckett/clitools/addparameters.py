@@ -125,7 +125,10 @@ def addparameters_core(par, lin, VIB_DIGITS=1, ALL_STATES=9, qnu='qnu4', qnl='qn
 		next_params_dicts = [{**ud, **pyckett.parse_param_id(id, 0)} for id in next_params_ids]
 		cands.update([pyckett.format_param_id(dict_, VIB_DIGITS) for dict_ in next_params_dicts]) 
 
-	lin_states = (set(lin[qnu].unique()) & set(lin[qnl].unique()))
+	if par["NVIB"] < 2:
+		lin_states = set()
+	else:
+		lin_states = (set(lin[qnu].unique()) & set(lin[qnl].unique()))
 	update_base_states = lambda ud, bs: [pyckett.format_param_id({**ud, **pyckett.parse_param_id(id, 0)}, VIB_DIGITS) for id in bs]
 	
 	# Add base parameters for all rotational states
@@ -148,7 +151,7 @@ def addparameters_core(par, lin, VIB_DIGITS=1, ALL_STATES=9, qnu='qnu4', qnl='qn
 	interstate_cands = interstate_cands - present_params
 	get_comment = lambda id: INTERSTATE_PARAMS.get(pyckett.format_param_id(pyckett.parse_param_id(id, VIB_DIGITS), 0), ("",))[0]
 	interstate_cands = [(id, get_comment(id)) for id in interstate_cands]	
-	
+		
 	candidates = []
 	if not skiprotational:
 		candidates.extend(rotational_cands)
@@ -184,6 +187,4 @@ def addparameters_core(par, lin, VIB_DIGITS=1, ALL_STATES=9, qnu='qnu4', qnl='qn
 			save_par["PARAMS"] = best_stats['par']
 			file.write(pyckett.dict_to_parvar(save_par))
 		prit(report, '\nWrote the best run to "best.par".')
-
 	return(init_stats, best_stats, results)
-
