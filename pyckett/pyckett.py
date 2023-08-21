@@ -305,6 +305,7 @@ def format_param_id(dict_, vib_digits):
 	for label, digits in get_par_digits(vib_digits).items():
 		if digits == 0:
 			continue
+		# @Luis: Think about throwing an error here when the value is higher than the digits value!
 		param_id += dict_.get(label, 0) * factor
 		factor *= 10**digits
 	return(param_id)
@@ -324,7 +325,7 @@ def cat_to_df(fname, sort=True):
 		data.sort_values("x", inplace=True)
 	return(data)
 
-def lin_to_df(fname, sort=True):
+def lin_to_df(fname, sort=True, zeroes_as_empty=False):
 	widths = range(0, 37, 3)
 	column_names = list(lin_dtypes.keys())
 	
@@ -332,7 +333,7 @@ def lin_to_df(fname, sort=True):
 	tmp_file = open(fname, "r") if not isinstance(fname, io.StringIO) else fname
 	with tmp_file as file:
 		for line in file:
-			if not line.strip() or line.startswith("#"):
+			if not line.strip() or line.startswith(("#", "/", "\\")):
 				continue
 
 			tmp = line[36:].split(maxsplit=3)
@@ -367,6 +368,12 @@ def lin_to_df(fname, sort=True):
 	noq = len(qns_labels)
 	for i in range(len(qns_labels)):
 		if all(SENTINEL == data[qns_labels[i]]):
+			noq = i
+			break
+		
+		# Zeros_as_empty supports AABS format where empty quantum numbers are denoted as zero
+		# This can lead to ambiguous results if there are all-zero columns
+		if zeroes_as_empty and all(0 == data[qns_labels[i]]):
 			noq = i
 			break
 	noq = noq // 2
