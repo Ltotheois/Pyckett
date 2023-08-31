@@ -38,7 +38,7 @@ def uncertainties():
 		isinterstate = (parsed_id['v1'] != parsed_id['v2'])
 		isrotational = (parsed_id['v1'] == parsed_id['v2'])
 		isglobal     = (parsed_id['v1'] == parsed_id['v2'] == ALL_STATES)
-		isfixed      = (unc < pyckett.ZEROTHRESHOLD)
+		isfixed      = (abs(unc) < pyckett.ZEROTHRESHOLD)
 		
 		if args.skipfixed and isfixed:
 			continue
