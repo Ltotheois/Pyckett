@@ -65,7 +65,7 @@ class pickett_int(np.int64):
 			return(SENTINEL)
 
 		init_char = value[0]
-		if init_char.isnumeric():
+		if init_char.isnumeric() or init_char == "-":
 			return np.int64(value)
 		
 		elif init_char.isalpha():
@@ -514,8 +514,16 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False):
 		# Zeros_as_empty supports AABS format where empty quantum numbers are denoted as zero
 		# This can lead to ambiguous results if there are all-zero columns
 		if zeroes_as_empty and all(0 == data[qns_labels[i]]):
-			noq = i
-			break
+			following_columns_are_zero = [all(0 == data[qns_labels[j]]) for j in range(i+1, len(qns_labels))]
+			if all(following_columns_are_zero):
+				# Return even value as we might otherwise neglect the column with all zeroes for the state
+				noq = i + (i % 2 == 1)
+				# Unset the following columns
+				for j in range(noq, len(qns_labels)):
+					data[qns_labels[j]] = SENTINEL
+				
+				break
+		
 	noq = noq // 2
 
 	columns_qn = [f"qn{ul}{i+1}" for ul in ('u', 'l') for i in range(noq)] + [f"qn{ul}{i+1}" for ul in ('u', 'l') for i in range(noq, 6)]
@@ -695,7 +703,7 @@ def parvar_to_dict(fname):
 					result[key] = value
 		
 		result['STATES'] = []
-		if result['VSYM'] < 0:
+		if result.get('VSYM', 0) < 0:
 			for x in range(abs(result['NVIB'])-1):
 				line = file.readline()[1:]
 				keys = ['SPIND', 'NVIB', 'KNMIN', 'KNMAX', 'IXX', 'IAX', 'WTPL', 'WTMN', 'VSYM', 'EWT', 'DIAG', 'XOPT'] #Only their in case list is changed to dict
@@ -1233,8 +1241,11 @@ def omit_parameter(par_dict, lin_df, param_ids, sort=True, spfit_path=None):
 	def worker(param_id):
 		tmp_par_dict = par_dict.copy()
 		tmp_par_dict["PARAMS"] = [x for x in tmp_par_dict["PARAMS"] if x[0] != param_id]
-		results = run_spfit_v(tmp_par_dict, lin_df, spfit_path)
-		stats = parse_fit_result(results["msg"], results["var"])
+		try:
+			results = run_spfit_v(tmp_par_dict, lin_df, spfit_path)
+			stats = parse_fit_result(results["msg"], results["var"])
+		except subprocess.CalledProcessError:
+			stats = {"rms": None}
 		rms = stats["rms"]
 		return({'id': param_id, 'rms': rms, 'par': tmp_par_dict["PARAMS"].copy(), 'stats': stats})
 	
@@ -1243,7 +1254,9 @@ def omit_parameter(par_dict, lin_df, param_ids, sort=True, spfit_path=None):
 		runs = [f.result() for f in futures.values()]
 	
 	if sort:
-		runs = sorted(runs, key=lambda x: (x['stats']['rejected_lines'], x['rms']))
+		failed_runs = [x for x in runs if x["rms"] is None]
+		normal_runs = [x for x in runs if x["rms"] is not None]
+		runs = sorted(normal_runs, key=lambda x: (x['stats']['rejected_lines'], x['rms'])) + failed_runs
 	return(runs)
 
 def finalize(cat_df=pd.DataFrame(), lin_df=pd.DataFrame(), qn_tdict={}, qn=4):

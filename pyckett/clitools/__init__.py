@@ -1,3 +1,4 @@
+from .shortcuts import *
 from .addparameters import *
 from .uncertainties import *
 from .omitparameters import *

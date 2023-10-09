@@ -13,12 +13,22 @@ pip install pyckett
 Pyckett provides a set of command line utilities which perform common steps of an iterative fitting process.
 
 *pyckett_add* helps adding new parameters to the fit, *pyckett_omit* is used for evaluating which parameters can be omitted.
+
 *pyckett_separatefits* can be used to separate a global fit into separate fits for each state.
+
 *pyckett_uncertainties* evaluates the uncertainties of the parameters.
+
 *pyckett_partitionfunction* calculates the partition function for different temperatures.
+
 *pyckett_auto* automatically builds up the Hamiltonian step by step.
 
+*pyckett_fit* and *pyckett_cat* are shortcuts to SPFIT and SPCAT, respectively.
+
+
 See the respective help functions (by adding *--help* after the command) to see their syntax.
+
+
+If SPFIT and SPCAT cannot be executed via *spfit* and *spcat* (if they are not in your PATH or have different names) point to them by setting the *PYCKETT_SPFIT_PATH* and *PYCKETT_SPCAT_PATH* environment variables to their full paths.
 
 # Examples
 

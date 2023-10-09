@@ -73,7 +73,10 @@ def omitparameters_core(par, lin, VIB_DIGITS=1, ALL_STATES=9, skipglobal=False, 
 	
 	if report:
 		for results in runs:
-			print(f"ID {results['id']:8}; RMS of {results['rms']*1000 :10.2f} kHz; Rejected lines {results['stats']['rejected_lines']:8}; Diverging {results['stats']['diverging']:8};")
+			if results["rms"] is None:
+				print(f"ID {results['id']:8}; FAILED! This parameter could be essential.")
+			else:
+				print(f"ID {results['id']:8}; RMS of {results['rms']*1000 :10.2f} kHz; Rejected lines {results['stats']['rejected_lines']:8}; Diverging {results['stats']['diverging']:8};")
 
 	return(runs)
 

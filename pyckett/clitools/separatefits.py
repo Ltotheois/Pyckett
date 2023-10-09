@@ -116,6 +116,7 @@ def separatefits():
 		else:
 			stats = {}
 		stats['states'] = states
+		stats['total_lines'] = len(tmp_lin)
 		
 		return(stats)
 	
@@ -124,9 +125,12 @@ def separatefits():
 		futures = {i: executor.submit(worker, i) for i in range(len(states_sets))}
 		runs = [f.result() for f in futures.values()]
 	
-	
+	header = "States         |  RMS / kHz  |  Rejected  | Total Lines"
+	print(header)
+	print("-" * len(header))
 	for results in sorted(runs, key=lambda x: x['states'][0]):
 		states_identifier = '_'.join([f'{state:03.0f}' for state in results['states']])	
 		if 'rms' in results:
-			print(f"States {states_identifier:15};   RMS {results['rms']*1000 :12.4f} kHz; Rejected lines {results['rejected_lines'] :10.0f}")
+			# print(f"States {states_identifier:15};   RMS {results['rms']*1000 :12.4f} kHz; Rejected lines {results['rejected_lines'] :7.0f} /{results['total_lines'] :7.0f}")
+			print(f"{states_identifier:15}|{results['rms']*1000 :12.4f} |{results['rejected_lines'] :11.0f} |{results['total_lines'] :12.0f}")
 
