@@ -4,6 +4,7 @@
 # Author: Luis Bonah
 # Description : CLI tool for checking which parameter to add to fit
 
+import os.path
 import json
 import pyckett
 from pyckett.clitools import addparameters_core, omitparameters_core
@@ -39,9 +40,13 @@ def automaticfit():
 
 	args = parser.parse_args()
 
-
-	lin = pyckett.lin_to_df(args.linfile)
-	par = pyckett.parvar_to_dict(args.parfile if args.parfile else args.linfile.replace(".lin", ".par"))
+	linfname = args.linfile
+	base, ext = os.path.splitext(linfname)
+	if not ext:
+		linfname = linfname + ".lin"
+	
+	lin = pyckett.lin_to_df(linfname)
+	par = pyckett.parvar_to_dict(args.parfile if args.parfile else linfname.replace(".lin", ".par"))
 	
 	VIB_DIGITS = pyckett.get_vib_digits(par)
 	ALL_STATES = pyckett.get_all_states(VIB_DIGITS)

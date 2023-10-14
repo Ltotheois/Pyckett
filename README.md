@@ -8,6 +8,20 @@ Install the package with pip by using the following command
 pip install pyckett
 ```
 
+If SPFIT and SPCAT cannot be executed via the commands *spfit* and *spcat* (if they are not in your PATH or have different names) point to them by setting the *PYCKETT_SPFIT_PATH* and *PYCKETT_SPCAT_PATH* environment variables to their full paths.
+
+# Documentation
+
+Currently, the documentation is limited to the docstrings of the main library.
+To easily access the docstrings you can run
+```
+pip install pdoc
+pdoc pyckett
+```
+after having installed Pyckett.
+
+The CLI tools provide help texts via the -h or --help flags.
+
 # CLI Tools
 
 Pyckett provides a set of command line utilities which perform common steps of an iterative fitting process.
@@ -27,9 +41,6 @@ Pyckett provides a set of command line utilities which perform common steps of a
 
 See the respective help functions (by adding *--help* after the command) to see their syntax.
 
-
-If SPFIT and SPCAT cannot be executed via *spfit* and *spcat* (if they are not in your PATH or have different names) point to them by setting the *PYCKETT_SPFIT_PATH* and *PYCKETT_SPCAT_PATH* environment variables to their full paths.
-
 # Examples
 
 You can read files from the SPFIT/SPCAT universe with the following syntax
@@ -43,20 +54,6 @@ cat_df = pyckett.cat_to_df(r"path/to/your/project/molecule.cat")
 egy_df = pyckett.egy_to_df(r"path/to/your/project/molecule.egy")
 
 erham_df = pyckett.erhamlines_to_df(r"path/to/your/project/molecule.in")
-```
-
-## Best Candidate to add to Fit
-
-```python
-cands = [[140101, 0.0, 1e+37], [410101, 0.0, 1e+37]]
-pyckett.add_parameter(par_dict, lin_df, cands, r"SPFIT_SPCAT")
-```
-
-## Best Candidate to neglect from Fit
-
-```python
-cands = [320101, 230101]
-pyckett.omit_parameter(par_dict, lin_df, cands, r"SPFIT_SPCAT")
 ```
 
 ## Finalize cat file

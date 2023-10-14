@@ -4,6 +4,7 @@
 # Author: Luis Bonah
 # Description : CLI tool for checking which parameter to add to fit
 
+import os.path
 import pyckett
 import argparse
 from concurrent.futures import ThreadPoolExecutor
@@ -35,9 +36,13 @@ def addparameters():
 
 	args = parser.parse_args()
 
-
-	lin = pyckett.lin_to_df(args.linfile)
-	par = pyckett.parvar_to_dict(args.parfile if args.parfile else args.linfile.replace(".lin", ".par"))
+	linfname = args.linfile
+	base, ext = os.path.splitext(linfname)
+	if not ext:
+		linfname = linfname + ".lin"
+	
+	lin = pyckett.lin_to_df(linfname)
+	par = pyckett.parvar_to_dict(args.parfile if args.parfile else linfname.replace(".lin", ".par"))
 	
 	if not args.skipparupdate:
 		par.update(pyckett.PARUPDATE)
