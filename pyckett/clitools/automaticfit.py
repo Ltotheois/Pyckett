@@ -45,7 +45,7 @@ def automaticfit():
 	if not ext:
 		linfname = linfname + ".lin"
 	
-	lin = pyckett.lin_to_df(linfname)
+	lin = pyckett.lin_to_df(linfname, sort=False)
 	par = pyckett.parvar_to_dict(args.parfile if args.parfile else linfname.replace(".lin", ".par"))
 	
 	VIB_DIGITS = pyckett.get_vib_digits(par)

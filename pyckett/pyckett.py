@@ -530,7 +530,8 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False):
 	data.columns = columns_qn + list(data.columns[12:])
 
 	if sort:
-		data.sort_values("x", inplace=True)
+		# Sort by x and by error to keep blends together
+		data.sort_values(["x", "error"], inplace=True)
 	return(data)
 
 def df_to_cat(df):
@@ -796,7 +797,8 @@ def int_to_dict(fname):
 			funcs = [int, np.float64]
 			intline = [func(value) for key, value, func in zip(keys, line.split(), funcs)]
 			
-			result['INTS'].append(intline)
+			if intline:
+				result['INTS'].append(intline)
 	
 	return(result)
 
@@ -876,6 +878,56 @@ def erhamlines_to_df(fname, sort=True):
 	
 	return(data)
 
+def df_to_erhamlines(df):
+	"""Convert dataframe to ERHAM line list.
+	
+	Parameters
+    ----------
+	df: dataframe
+		Dataframe holding the *.lin data.
+
+    Returns
+    -------
+    str
+        Data of the dataframe in ERHAM line list format.
+	"""
+	lines = []
+	
+	df["blended"] = False
+	col_blended = df.columns.get_loc("blended")
+	col_x = df.columns.get_loc("x")
+	
+	df.iloc[:-1, col_blended] = df.iloc[1:, col_x].values == df.iloc[:-1, col_x].values
+	
+	in_blend = False
+	for index, row in df.iterrows():
+		is1, is2 = row["qnu4"], row["qnl4"]
+		qnu1, qnl1 = row["qnu1"], row["qnl1"]
+		tauu, taul = row["qnu2"] - row["qnu3"] + qnu1 + 1, row["qnl2"] - row["qnl3"] + qnl1 + 1
+		
+		x = format_(row["x"], "19.6f")
+		
+		if in_blend:
+			if row["blended"]:
+				blend = row["weight"]
+			else:
+				blend = -row["weight"]
+				in_blend = False
+		else:
+			if row["blended"]:
+				blend = row["weight"]
+				in_blend = True
+			else:
+				blend = 0
+				in_blend = False
+		
+		blend = format_(blend, "6.3f")
+		error = format_(row["error"], "11.6f")
+		
+		lines.append(f"{is1:3.0f}{is2:3.0f}  {qnu1:3.0f}{tauu:3.0f}  {qnl1:3.0f}{taul:3.0f} {x} {blend} {error}")
+	lines.append("")
+	
+	return("\n".join(lines))
 
 ## SPFIT/SPCAT functions
 def run_spfit(fname, parameterfile="", path=None, wd=None):
@@ -1026,7 +1078,7 @@ def run_spcat_v(var_dict, int_dict, spcat_path=None):
 		result = {
 			"msg": message,
 			"cat": cat_to_df(os.path.join(tmp_dir, "tmp.cat")),
-			"egy": egy_to_df(os.path.join(tmp_dir, "tmp.egy")),
+			"egy": egy_to_df(os.path.join(tmp_dir, "tmp.egy")) if os.path.isfile(os.path.join(tmp_dir, "tmp.egy")) else None,
 		}
 		
 		for ext in (".out", ".str"):
