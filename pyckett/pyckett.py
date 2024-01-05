@@ -704,14 +704,29 @@ def parvar_to_dict(fname):
 					result[key] = value
 		
 		result['STATES'] = []
-		if result.get('VSYM', 0) < 0:
-			for x in range(abs(result['NVIB'])-1):
-				line = file.readline()[1:]
-				keys = ['SPIND', 'NVIB', 'KNMIN', 'KNMAX', 'IXX', 'IAX', 'WTPL', 'WTMN', 'VSYM', 'EWT', 'DIAG', 'XOPT'] #Only their in case list is changed to dict
-				stateline = [int(value) for key, value in zip(keys, line.split())]
-				result['STATES'].append(stateline)
-				if stateline[8] > 0:
-					break
+		
+		states_keys = ['CHR', 'SPIND', 'NVIB', 'KNMIN', 'KNMAX', 'IXX', 'IAX', 'WTPL', 'WTMN', 'VSYM', 'EWT', 'DIAG', 'XOPT']
+		tmp_vsym = result.get("VSYM", 0)
+		while tmp_vsym < 0:
+			linecontent = file.readline().split()
+			if not linecontent:
+				break
+			
+			try:
+				chr = ""
+				spind = int(linecontent[0])
+				linecontent = linecontent[1:]
+				
+			except ValueError:
+				chr = linecontent[0]
+				spind = int(linecontent[1]) if len(linecontent) > 1 else 1
+				linecontent = linecontent[2:]
+			
+			linecontent = {key: int(value) for key, value in zip(states_keys[2:], linecontent)}
+			linecontent.update({"CHR": chr, "SPIND": spind})
+			tmp_vsym = linecontent.get("VSYM", 0)
+			
+			result["STATES"].append(linecontent)
 		
 		result['PARAMS'] = []
 		for line in file:
@@ -750,15 +765,18 @@ def dict_to_parvar(dict_):
 	line = "".join([fs.format(x) for x, fs in zip(values, formats)])
 	output.append(line)
 	
-	formats = [' {:4.0f}', ' {:3.0f}', ' {:3.0f}', ' {:4.0f}', ' {:4.0f}', ' {:4.0f}', ' {:4.0f}', ' {:4.0f}', ' {: 7.0f}', ' {:4.0f}', ' {:1.0f}', ' {:4.0f}']
+	formats = ['{:2}', ' {:4.0f}', ' {:3.0f}', ' {:3.0f}', ' {:4.0f}', ' {:4.0f}', ' {:4.0f}', ' {:4.0f}', ' {:4.0f}', ' {: 7.0f}', ' {:4.0f}', ' {:1.0f}', ' {:4.0f}']
+	states_keys = ['CHR', 'SPIND', 'NVIB', 'KNMIN', 'KNMAX', 'IXX', 'IAX', 'WTPL', 'WTMN', 'VSYM', 'EWT', 'DIAG', 'XOPT']
 	
-	values = [dict_[key] for key in ['SPIND', 'NVIB', 'KNMIN', 'KNMAX', 'IXX', 'IAX', 'WTPL', 'WTMN', 'VSYM', 'EWT', 'DIAG', 'XOPT'] if key in dict_ ]
-	line = f"{dict_['CHR']}"+ "".join([fs.format(x) for x, fs in zip(values, formats)])
-	output.append(line)
-	
-	for state in dict_["STATES"]:
-		line = "".join([fs.format(x) for x, fs in zip(state, formats)])
-		output.append(line)
+	for state in [dict_] + dict_["STATES"]:
+		line = []
+		for fs, key in zip(formats, states_keys):
+			if key not in state:
+				break
+			tmp = state[key]
+			line.append(fs.format(tmp))
+		
+		output.append("".join(line))
 	
 	for param in dict_['PARAMS']:
 		comment = ""

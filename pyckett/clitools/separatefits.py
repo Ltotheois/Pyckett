@@ -7,6 +7,7 @@
 import os
 import argparse
 import pyckett
+import copy
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -77,7 +78,6 @@ def separatefits():
 
 	# @Luis: Think about states that are only in lin file
 	
-	
 	def worker(i):
 		states = sorted(states_sets[i])
 		states_identifier = '_'.join([f'{state:03.0f}' for state in states])
@@ -87,9 +87,24 @@ def separatefits():
 	
 		filter_states = lambda x: (x[0] in states and x[1] in states) or (x[0] == ALL_STATES and  x[1] == ALL_STATES) 
 		tmp_params = [x[-1].copy() for x in params if filter_states(x)]
-		tmp_par = par.copy()
+		tmp_par = copy.deepcopy(par)
+		
+		tmp_par["STATES"] = [state for state in tmp_par["STATES"] if state.get("NVIB") in states]
+		if len(tmp_par["STATES"]):
+			tmp_par["STATES"][-1]["VSYM"] = 1
+		elif tmp_par["VSYM"] < 0:
+			tmp_par["VSYM"] = 0
 		
 		if not args.keepqns:
+			# Update vsym to match the new quantum numbers
+			vsym = tmp_par['VSYM']
+			if vsym > 0:
+				vsym_per_state = [int(x) for x in str(vsym)][::-1]
+				vsym_per_state = [str(vsym_per_state[x]) for x in states if x < len(vsym_per_state)][::-1]
+			
+				new_vsym = "".join(vsym_per_state) if vsym_per_state else "0"
+				tmp_par['VSYM'] = int(new_vsym)
+			
 			sign_nvib = -1 if tmp_par['NVIB'] < 0 else 1
 			tmp_par['NVIB'] = max(2, len(states)) * sign_nvib
 			new_vib_digits = pyckett.get_vib_digits(tmp_par) 
@@ -106,6 +121,10 @@ def separatefits():
 				parsed_id['v1'] = translation_dict[parsed_id['v1']]
 				parsed_id['v2'] = translation_dict[parsed_id['v2']]
 				param[0] = pyckett.format_param_id(parsed_id, new_vib_digits)
+			
+			for state in tmp_par["STATES"]:
+				state["NVIB"] = translation_dict[state["NVIB"]]
+		
 		tmp_par["PARAMS"] = tmp_params
 
 		with open(os.path.join('separatefits', filename + ".lin"), "w+") as file:
@@ -122,8 +141,7 @@ def separatefits():
 		stats['states'] = states
 		stats['total_lines'] = len(tmp_lin)
 		
-		return(stats)
-	
+		return(stats)	
 	
 	with ThreadPoolExecutor() as executor:
 		futures = {i: executor.submit(worker, i) for i in range(len(states_sets))}
