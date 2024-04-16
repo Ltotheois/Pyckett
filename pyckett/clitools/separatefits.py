@@ -49,13 +49,11 @@ def separatefits():
 	for param in par["PARAMS"]:
 		parsed_id = pyckett.parse_param_id(param[0], VIB_DIGITS)
 		v1, v2 = parsed_id['v1'], parsed_id['v2']
-		if v1 == v2 == ALL_STATES:
-			param[2] = pyckett.ZERO
 
 		params.append([v1, v2, param])
 		
 		if v1 == v2:
-			contains_v = [v1 in states for states in states_sets]			
+			contains_v = [v1 in states for states in states_sets]
 			if not any(contains_v):
 				states_sets.append(set((v1,)))
 		elif not args.forcesingles:
@@ -126,6 +124,18 @@ def separatefits():
 				state["NVIB"] = translation_dict[state["NVIB"]]
 		
 		tmp_par["PARAMS"] = tmp_params
+		
+		params_are_global = []
+		for param in tmp_par["PARAMS"]:
+			parsed_id = pyckett.parse_param_id(param[0], new_vib_digits)
+			v1, v2 = parsed_id['v1'], parsed_id['v2']
+			param_is_global = (v1 == v2 == new_all_states)
+			params_are_global.append(param_is_global)
+		
+		if not all(params_are_global):
+			for param, is_global in zip(tmp_par["PARAMS"], params_are_global):
+				if is_global:
+					param[2] = pyckett.ZERO
 
 		with open(os.path.join('separatefits', filename + ".lin"), "w+") as file:
 			file.write(pyckett.df_to_lin(tmp_lin))
@@ -147,12 +157,13 @@ def separatefits():
 		futures = {i: executor.submit(worker, i) for i in range(len(states_sets))}
 		runs = [f.result() for f in futures.values()]
 	
-	header = "States         |  RMS / kHz  |  Rejected  | Total Lines"
+	header = "States         |  RMS / kHz  |    WRMS    |  Rejected  | Total Lines"
 	print(header)
 	print("-" * len(header))
 	for results in sorted(runs, key=lambda x: x['states'][0]):
 		states_identifier = '_'.join([f'{state:03.0f}' for state in results['states']])	
 		if 'rms' in results:
 			# print(f"States {states_identifier:15};   RMS {results['rms']*1000 :12.4f} kHz; Rejected lines {results['rejected_lines'] :7.0f} /{results['total_lines'] :7.0f}")
-			print(f"{states_identifier:15}|{results['rms']*1000 :12.4f} |{results['rejected_lines'] :11.0f} |{results['total_lines'] :12.0f}")
+			wrms = float(results['wrms'])
+			print(f"{states_identifier:15}|{results['rms']*1000 :12.4f} |{wrms:11.4f} |{results['rejected_lines'] :11.0f} |{results['total_lines'] :12.0f}")
 

@@ -77,11 +77,16 @@ def omitparameters_core(par, lin, VIB_DIGITS=1, ALL_STATES=9, skipglobal=False, 
 	runs = pyckett.omit_parameter(par, lin, candidates)
 	
 	if report:
+		header = "         ID    |    RMS [kHz] | RejLines |  Diverging "
+		print(header)
+		print("-" * len(header) )
 		for results in runs:
 			if results["rms"] is None:
-				print(f"ID {results['id']:8}; FAILED! This parameter could be essential.")
+				print(f"ID {results['id']:14} | FAILED! This parameter could be essential.")
 			else:
-				print(f"ID {results['id']:8}; RMS of {results['rms']*1000 :10.2f} kHz; Rejected lines {results['stats']['rejected_lines']:8}; Diverging {results['stats']['diverging']:8};")
+				id, rms, rejected_lines, diverging = results['id'], results['rms']*1000, results['stats']['rejected_lines'], results['stats']['diverging']
+				print(f"{id:14} | {rms:12.2f} | {rejected_lines:8.0f} | {diverging:10} ")
+				# print(f"ID {results['id']:8}; RMS of {results['rms']*1000 :10.2f} kHz; Rejected lines {results['stats']['rejected_lines']:8}; Diverging {results['stats']['diverging']:8};")
 
 	return(runs)
 

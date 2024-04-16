@@ -488,6 +488,8 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False):
 					tmp[2] = dtype(tmp[2])
 					if len(tmp) == 3:
 						tmp.append("")
+					else:
+						tmp[3] = tmp[3].strip()
 				except ValueError:
 					comment = " ".join(tmp[2:]).strip()
 					if len(tmp) == 3:
@@ -843,7 +845,7 @@ def dict_to_int(dict_):
 	output.append(line)
 	
 	for param in dict_['INTS']:
-		output.append(f" {param[0]: d}  {param[1]:.2f}")
+		output.append(f" {param[0]: d}  {param[1]:.4f}")
 	
 	output = "\n".join(output)
 	return(output)
@@ -1275,7 +1277,7 @@ def add_parameter(par_dict, lin_df, param_candidates, sort=True, spfit_path=None
 		results = run_spfit_v(tmp_par_dict, lin_df, spfit_path)
 		stats = parse_fit_result(results["msg"], results["var"])
 		rms = stats["rms"]
-		return({'id': ids, 'rms': rms, 'par': tmp_par_dict["PARAMS"].copy(), 'stats': stats})
+		return({'id': ids, 'rms': rms, 'par': tmp_par_dict["PARAMS"].copy(), 'stats': stats, 'var': results["var"]["PARAMS"].copy()})
 	
 	with ThreadPoolExecutor() as executor:
 		futures = {i: executor.submit(worker, i) for i in range(len(param_candidates))}
