@@ -45,8 +45,10 @@ def addparameters():
 	if not ext:
 		linfname = linfname + ".lin"
 	
+	parfname = args.parfile if args.parfile else linfname.replace(".lin", ".par")
+	
 	lin = pyckett.lin_to_df(linfname, sort=False)
-	par = pyckett.parvar_to_dict(args.parfile if args.parfile else linfname.replace(".lin", ".par"))
+	par = pyckett.parvar_to_dict(parfname)
 	
 	if not args.skipparupdate:
 		par.update(pyckett.PARUPDATE)
@@ -56,6 +58,11 @@ def addparameters():
 	
 	qnu, qnl = f'qnu{args.stateqn:1.0f}', f'qnl{args.stateqn:1.0f}'
 	
+	bestparfile = "best.par"
+	if args.skipsavebest:
+		bestparfile = None
+	if args.overwritepar:
+		bestparfile = parfname
 	
 	kwargs = {
 		'VIB_DIGITS': VIB_DIGITS,
@@ -70,11 +77,10 @@ def addparameters():
 
 		'parameters': args.parameters, 
 		'newinteraction': args.newinteraction, 
-		'skipsavebest': args.skipsavebest, 
 		'initialvalues': args.initialvalues,
 		
 		'parameters_to_test': args.paramids,
-		'overwritepar': args.overwritepar,
+		'bestparfile': bestparfile,
 	}
 	
 	addparameters_core(par, lin, **kwargs)
@@ -83,7 +89,7 @@ def prit(condition, text=''):
 	if condition:
 		print(text)
 
-def addparameters_core(par, lin, VIB_DIGITS=1, ALL_STATES=9, qnu='qnu4', qnl='qnl4', parameters=None, skipfixed=False, skipinterstate=False, skiprotational=False, skipglobal=False, newinteraction=None, initialvalues=None, skipsavebest=False, parameters_to_test=None, overwritepar=False, report=True):
+def addparameters_core(par, lin, VIB_DIGITS=1, ALL_STATES=9, qnu='qnu4', qnl='qnl4', parameters=None, skipfixed=False, skipinterstate=False, skiprotational=False, skipglobal=False, newinteraction=None, initialvalues=None, bestparfile=None, parameters_to_test=None, report=True):
 	if not initialvalues:
 		initialvalues = [1E-37]
 	
@@ -202,8 +208,8 @@ def addparameters_core(par, lin, VIB_DIGITS=1, ALL_STATES=9, qnu='qnu4', qnl='qn
 		
 		id = stats['id'][0]
 		rms = stats['rms']*1000
-		initial = stats['par'][-1][1]
-		final = stats['var'][-1][1]
+		initial = stats['params'][-1][1]
+		final = stats['par'][-1][1]
 		rejected_lines = stats['stats']['rejected_lines']
 		diverging = stats['stats']['diverging']
 		
@@ -211,10 +217,10 @@ def addparameters_core(par, lin, VIB_DIGITS=1, ALL_STATES=9, qnu='qnu4', qnl='qn
 
 	# Final report
 	prit(report, f'\nInitial values were an RMS of {init_stats["rms"]*1000 :.2f} kHz, {init_stats["stats"]["rejected_lines"]} rejected lines, and diverging {init_stats["stats"]["diverging"]}.')
-	prit(report, f'\nBest run is parameter {best_stats["id"][0]} with a final parameter value of {best_stats["var"][-1][1]:.2e}, RMS of {best_stats["rms"]*1000 :.2f} kHz, {best_stats["stats"]["rejected_lines"]} rejected lines, and diverging {best_stats["stats"]["diverging"]}.')
+	prit(report, f'\nBest run is parameter {best_stats["id"][0]} with a final parameter value of {best_stats["par"][-1][1]:.2e}, RMS of {best_stats["rms"]*1000 :.2f} kHz, {best_stats["stats"]["rejected_lines"]} rejected lines, and diverging {best_stats["stats"]["diverging"]}.')
 
-	if not skipsavebest:
-		with open("best.par", "w+") as file:
+	if bestparfile is not None:
+		with open(bestparfile, "w+") as file:
 			save_par = par.copy()
 			save_par["PARAMS"] = best_stats['par']
 			file.write(pyckett.dict_to_parvar(save_par))

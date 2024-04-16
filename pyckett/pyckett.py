@@ -1277,7 +1277,7 @@ def add_parameter(par_dict, lin_df, param_candidates, sort=True, spfit_path=None
 		results = run_spfit_v(tmp_par_dict, lin_df, spfit_path)
 		stats = parse_fit_result(results["msg"], results["var"])
 		rms = stats["rms"]
-		return({'id': ids, 'rms': rms, 'par': tmp_par_dict["PARAMS"].copy(), 'stats': stats, 'var': results["var"]["PARAMS"].copy()})
+		return({'id': ids, 'rms': rms, 'par': results["par"]["PARAMS"].copy(), 'stats': stats, 'params': params})
 	
 	with ThreadPoolExecutor() as executor:
 		futures = {i: executor.submit(worker, i) for i in range(len(param_candidates))}
