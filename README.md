@@ -10,6 +10,8 @@ pip install pyckett
 
 If SPFIT and SPCAT cannot be executed via the commands *spfit* and *spcat* (if they are not in your PATH or have different names) point to them by setting the *PYCKETT_SPFIT_PATH* and *PYCKETT_SPCAT_PATH* environment variables to their full paths.
 
+If you want to acknowledge LLWP, please cite the paper [On the Spectroscopy of Phosphaalkynes: Millimeter- and Submillimeter-Wave Study of C2H5CP](https://doi.org/10.1021/acs.jpca.4c02566).
+
 # Documentation
 
 Currently, the documentation is limited to the docstrings of the main library.
