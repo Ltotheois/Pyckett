@@ -60,8 +60,13 @@ def partitionfunction():
 		Temperatures.sort(reverse=True)
 
 	egy_df = pyckett.egy_to_df(egyfilename)
+	Jmax = egy_df["qn1"].max()
+	Kamax = egy_df["qn2"].max()
+	Kcmax = egy_df["qn3"].max()
+	
 	partition_functions = {T: partition_function(egy_df, T) for T in Temperatures}
 
+	print(f'Partition function with J_max = {Jmax}, Ka_max = {Kamax}, Kc_max = {Kcmax}')
 	for key, value in partition_functions.items():
 		print(f"T = {key:6.2f}; Q = {value:12.4f}; log Q = {np.log10(value):7.4f}")
 
@@ -69,11 +74,11 @@ def partitionfunction():
 	if args.convergence:
 		import matplotlib.pyplot as plt
 		
-		Js = np.arange(0, egy_df["qn1"].max())
+		Js = np.arange(0, Jmax)
 		results = np.zeros((len(Temperatures), len(Js)))
 		
-		for i, Jmax in enumerate(Js):
-			tmp_df = egy_df.loc[egy_df["qn1"] <= Jmax].copy()
+		for i, Jupper in enumerate(Js):
+			tmp_df = egy_df.loc[egy_df["qn1"] <= Jupper].copy()
 			
 			for j, T in enumerate(Temperatures):
 				pf = partition_function(tmp_df, T)
