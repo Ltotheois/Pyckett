@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # Author: Luis Bonah
 # Description : SPFIT/SPCAT wrapping library
@@ -218,7 +218,6 @@ erham_dtypes = {
 	"comment":	str,
 }
 """dict: The data types of ERHAM output files."""
-
 
 # If NPAR and NLINE are too large it causes problems with spfit and spcat compiled for MacOs
 # If NPAR and NLINE should be set bigger, this can be done safely with scientific notation
@@ -462,6 +461,8 @@ def cat_to_df(fname, sort=True, use_10_quanta=None):
 		String, path, or file-like object holding the *.cat data.
 	sort: bool
 		If the data should be sorted by the x column.
+	zeroes_as_empty: bool
+		If all zero columns should be interpreted as inactive columns.
     use_10_quanta: None or bool
         If the 10 quanta format should be used. None means use global setting.
 
@@ -474,8 +475,6 @@ def cat_to_df(fname, sort=True, use_10_quanta=None):
 	if use_10_quanta is None and USE_10_QUANTA:
 		use_10_quanta = True
 
-	print(f'{use_10_quanta=} and {USE_10_QUANTA=}')
-
 	dtypes = cat_dtypes if not use_10_quanta else cat_dtypes_10_quanta
 	widths = cat_widths if not use_10_quanta else cat_widths_10_quanta
 		
@@ -485,8 +484,24 @@ def cat_to_df(fname, sort=True, use_10_quanta=None):
 	
 	data = pd.read_fwf(fname, widths=widths, names=columns, converters=converters, skip_blank_lines=True, comment="#").astype(dtypes)
 	data["y"] = 10 ** data["y"]
-	data["filename"] = str(fname)
 	
+	## Reorder columns if use_10_quanta and more than 6
+	n_qns = 6 if not use_10_quanta else 10
+	qns_labels = list(columns)[-2*n_qns:]
+
+	noq = len(qns_labels)
+	for i in range(len(qns_labels)):
+		if all(SENTINEL == data[qns_labels[i]]):
+			noq = i
+			break
+	
+	noq = noq // 2
+	if noq > 6:
+		columns_qn = [f"qn{ul}{i+1}" for ul in ('u', 'l') for i in range(noq)] + [f"qn{ul}{i+1}" for ul in ('u', 'l') for i in range(noq, n_qns)]
+		data.columns = list(data.columns[:-2*n_qns]) + columns_qn
+
+	data["filename"] = str(fname)
+
 	if sort:
 		data.sort_values("x", inplace=True)
 	return(data)
@@ -519,7 +534,7 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, use_10_quanta=None):
 	
 	widths = range(0, 3 * 2 * n_qns + 1, 3)
 	column_names = list(dtypes.keys())
-	qns_labels = column_names[0:12] if not use_10_quanta else column_names[0:20]
+	qns_labels = column_names[0:2*n_qns]
 
 	
 	data = []
