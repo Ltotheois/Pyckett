@@ -532,7 +532,8 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, use_10_quanta=None):
 	dtypes = lin_dtypes if not use_10_quanta else lin_dtypes_10_quanta
 	n_qns = 6 if not use_10_quanta else 10
 	
-	widths = range(0, 3 * 2 * n_qns + 1, 3)
+	chars_for_qns = 3 * 2 * n_qns
+	widths = range(0, chars_for_qns + 1, 3)
 	column_names = list(dtypes.keys())
 	qns_labels = column_names[0:2*n_qns]
 
@@ -544,7 +545,7 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, use_10_quanta=None):
 			if not line.strip() or line.startswith(("#", "/", "\\")):
 				continue
 
-			tmp = line[36:].split(maxsplit=3)
+			tmp = line[chars_for_qns:].split(maxsplit=3)
 			tmp[0] = dtypes['x'](tmp[0])
 			tmp[1] = dtypes['error'](tmp[1])
 			
