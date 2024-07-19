@@ -329,12 +329,6 @@ class TestFileFormats(unittest.TestCase):
 			np.random.seed(112)
 			lin['x'] = lin['x'] + np.random.rand(len(lin)) * 0.1
 
-			with open('tests/resources/test.par', 'w+') as file:
-				file.write(pyckett.dict_to_parvar(par))
-			
-			with open('tests/resources/test.lin', 'w+') as file:
-				file.write(pyckett.df_to_lin(lin))
-
 			results_fit = pyckett.run_spfit_v(par, lin)
 			parsed_result = pyckett.parse_fit_result(results_fit['msg'], results_fit['var'])
 

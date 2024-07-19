@@ -17,10 +17,18 @@ Exclude parameters higher than sextic order to prevent roll-over.
 Set Jmax and Kmax sufficiently high for convergence. When in doubt check with the --convergence option.
 """
 
-Temperatures = [300.000, 225.000, 150.000, 75.000, 37.500, 18.750, 9.37, ]
+Temperatures = [
+    300.000,
+    225.000,
+    150.000,
+    75.000,
+    37.500,
+    18.750,
+    9.37,
+]
 
-k = 1.380649E-23
-h = 6.62607015E-34
+k = 1.380649e-23
+h = 6.62607015e-34
 c = 299792458
 
 cm1_to_Joules = h * c * 100
@@ -35,62 +43,81 @@ factor_pickett = 1.43878
 
 
 def partition_function(egy_df, T):
-	egy_df["tmp"] = ( 2 * egy_df["qn1"] + 1 ) * np.exp( - egy_df["egy"] * factor / T )
-	return(egy_df["tmp"].sum())
-
+    egy_df["tmp"] = (2 * egy_df["qn1"] + 1) * np.exp(-egy_df["egy"] * factor / T)
+    return egy_df["tmp"].sum()
 
 
 def partitionfunction():
-	parser = argparse.ArgumentParser(prog='Partitionfunction', epilog=recommended_use, formatter_class=argparse.RawDescriptionHelpFormatter)
-	
-	parser.add_argument('egyfile', type=str, help='Filename of the .egy file')
-	parser.add_argument('--temperatures', '-T', metavar='T', nargs='*', type=float, help='Additional temperatures in Kelvin to evaluate the partition function for')
-	parser.add_argument('--pickett', '-p', dest='use_pickett_factor', action='store_true', help='Use the (less precise) numeric values from SPCAT')
-	parser.add_argument('--convergence', '-c', dest='convergence', action='store_true', help='Produce convergence plot')
+    parser = argparse.ArgumentParser(
+        prog="Partitionfunction",
+        epilog=recommended_use,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
 
-	args = parser.parse_args()
-	
-	egyfilename = args.egyfile
-	
-	if args.use_pickett_factor:
-		factor = factor_pickett
-	
-	if args.temperatures:
-		Temperatures.extend(args.temperatures)
-		Temperatures.sort(reverse=True)
+    parser.add_argument("egyfile", type=str, help="Filename of the .egy file")
+    parser.add_argument(
+        "--temperatures",
+        "-T",
+        metavar="T",
+        nargs="*",
+        type=float,
+        help="Additional temperatures in Kelvin to evaluate the partition function for",
+    )
+    parser.add_argument(
+        "--pickett",
+        "-p",
+        dest="use_pickett_factor",
+        action="store_true",
+        help="Use the (less precise) numeric values from SPCAT",
+    )
+    parser.add_argument(
+        "--convergence",
+        "-c",
+        dest="convergence",
+        action="store_true",
+        help="Produce convergence plot",
+    )
 
-	egy_df = pyckett.egy_to_df(egyfilename)
-	Jmax = egy_df["qn1"].max()
-	Kamax = egy_df["qn2"].max()
-	Kcmax = egy_df["qn3"].max()
-	
-	partition_functions = {T: partition_function(egy_df, T) for T in Temperatures}
+    args = parser.parse_args()
 
-	print(f'Partition function with J_max = {Jmax}, Ka_max = {Kamax}, Kc_max = {Kcmax}')
-	for key, value in partition_functions.items():
-		print(f"T = {key:6.2f}; Q = {value:12.4f}; log Q = {np.log10(value):7.4f}")
+    egyfilename = args.egyfile
 
+    if args.use_pickett_factor:
+        factor = factor_pickett
 
-	if args.convergence:
-		import matplotlib.pyplot as plt
-		
-		Js = np.arange(0, Jmax)
-		results = np.zeros((len(Temperatures), len(Js)))
-		
-		for i, Jupper in enumerate(Js):
-			tmp_df = egy_df.loc[egy_df["qn1"] <= Jupper].copy()
-			
-			for j, T in enumerate(Temperatures):
-				pf = partition_function(tmp_df, T)
-				results[j, i] = pf
-		
-		for j, T in enumerate(Temperatures):
-			ys = results[j, :]
-			plt.plot(Js, ys, label=f"{T=} K")
-		
-		plt.xlabel(r"$J_{max}$")
-		plt.ylabel("$Q$")
-		plt.legend()
-		plt.show()
+    if args.temperatures:
+        Temperatures.extend(args.temperatures)
+        Temperatures.sort(reverse=True)
 
+    egy_df = pyckett.egy_to_df(egyfilename)
+    Jmax = egy_df["qn1"].max()
+    Kamax = egy_df["qn2"].max()
+    Kcmax = egy_df["qn3"].max()
 
+    partition_functions = {T: partition_function(egy_df, T) for T in Temperatures}
+
+    print(f"Partition function with J_max = {Jmax}, Ka_max = {Kamax}, Kc_max = {Kcmax}")
+    for key, value in partition_functions.items():
+        print(f"T = {key:6.2f}; Q = {value:12.4f}; log Q = {np.log10(value):7.4f}")
+
+    if args.convergence:
+        import matplotlib.pyplot as plt
+
+        Js = np.arange(0, Jmax)
+        results = np.zeros((len(Temperatures), len(Js)))
+
+        for i, Jupper in enumerate(Js):
+            tmp_df = egy_df.loc[egy_df["qn1"] <= Jupper].copy()
+
+            for j, T in enumerate(Temperatures):
+                pf = partition_function(tmp_df, T)
+                results[j, i] = pf
+
+        for j, T in enumerate(Temperatures):
+            ys = results[j, :]
+            plt.plot(Js, ys, label=f"{T=} K")
+
+        plt.xlabel(r"$J_{max}$")
+        plt.ylabel("$Q$")
+        plt.legend()
+        plt.show()
