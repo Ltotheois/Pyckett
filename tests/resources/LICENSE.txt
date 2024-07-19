@@ -1,0 +1,15 @@
+All files are either taken directly from the Cologne Database for Molecular Spectroscopy (CDMS) or slightly modified versions.
+
+The CDMS can be accessed via:
+
+https://cdms.astro.uni-koeln.de/
+
+
+Please acknowledge use of the CDMS by citing the following references. You are very welcome to state the web address also. We recommend to cite the original sources of the data too, which are given in the documentations, at least as far as this is feasible.
+
+THE COLOGNE DATABASE FOR MOLECULAR SPECTROSCOPY, CDMS
+H. S. P. Müller, S. Thorwirth, D. A. Roth, and G. Winnewisser; Astron. Astrophys. 370 (2001) L49 – L52.
+THE COLOGNE DATABASE FOR MOLECULAR SPECTROSCOPY, CDMS:
+A USEFUL TOOL FOR ASTRONOMERS AND SPECTROSCOPISTS
+H. S. P. Müller, F. Schlöder, J. Stutzki, and G. Winnewisser, , J. Mol. Struct. 742, 215–227 (2005).
+The first reference describes the structure of the files which have been used to generate the catalog, whereas the second, more recent one, contains updates of the database.

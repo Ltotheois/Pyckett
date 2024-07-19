@@ -46,20 +46,50 @@ SPFIT_PATH = os.environ.get("PYCKETT_SPFIT_PATH")
 SPCAT_PATH = os.environ.get("PYCKETT_SPCAT_PATH")
 """str or None: Path to SPCAT program."""
 
-USE_10_QUANTA = False
+QUANTA = 6
 """bool or None: If 10 quanta format should be used."""
 
-QNLABELS = ['qnu1', 'qnu2', 'qnu3', 'qnu4', 'qnu5', 'qnu6', 'qnl1', 'qnl2', 'qnl3', 'qnl4', 'qnl5', 'qnl6']
+def qnlabels_from_quanta(n=6):
+	"""Create the qnlabels for n quanta.
+	
+	Parameters
+    ----------
+	n: int
+		Number of quanta
+
+    Returns
+    -------
+    dict
+        List holding the quantum number labels for n quanta.
+	"""
+	
+	n = max(6, n)
+	return([f'qn{ul}{i+1}' for ul in ('u', 'l') for i in range(n)])
+	
+
+QNLABELS = qnlabels_from_quanta()
 """list of str: Labels used for the quantum numbers of transitions."""
 
-QNLABELS_10_QUANTA = [f'qn{ul}{i+1}' for ul in ('u', 'l') for i in range(10)]
-"""list of str: Labels used for the quantum numbers of transitions for 10 quanta."""
+def qnlabels_energy_from_quanta(n=6):
+	"""Create the qnlabels for energy levels for n quanta.
+	
+	Parameters
+    ----------
+	n: int
+		Number of quanta
 
-QNLABELS_ENERGY = ['qn1', 'qn2', 'qn3', 'qn4', 'qn5', 'qn6']
+    Returns
+    -------
+    dict
+        List holding the quantum number labels for energies for n quanta.
+	"""
+	
+	n = max(6, n)
+	return([f'qn{i+1}' for i in range(n)])
+
+QNLABELS_ENERGY = qnlabels_energy_from_quanta()
 """list of str: Labels used for the quantum numbers of energy levels."""
 
-QNLABELS_ENERGY_10_QUANTA = [f'qn{i+1}' for i in range(10)]
-"""list of str: Labels used for the quantum numbers of energy levels for 10 quanta."""
 
 class pickett_int(np.int64):
 	"""Integer type that can convert Pickett specific notation."""
@@ -84,125 +114,159 @@ class pickett_int(np.int64):
 			return(np.int64(99))
 
 
-cat_dtypes = {
-	'x':		np.float64,
-	'error':	np.float64,
-	'y':		np.float64,
-	'degfreed':	pickett_int,
-	'elower':	np.float64,
-	'usd':		pickett_int,
-	'tag':		pickett_int,
-	'qnfmt':	pickett_int,
-	**{f'qn{ul}{i+1}': pickett_int for ul in ('u', 'l') for i in range(6)},
-}
+def cat_dtypes_from_quanta(n=6):
+	"""Create a dtype dict for a *.cat file with n quanta.
+	
+	Parameters
+    ----------
+	n: int
+		Number of quanta
+
+    Returns
+    -------
+    dict
+        Dictionary holding the *.cat dtypes.
+	"""
+	
+	n = max(6, n)
+	dtype_dict = {
+		'x':		np.float64,
+		'error':	np.float64,
+		'y':		np.float64,
+		'degfreed':	pickett_int,
+		'elower':	np.float64,
+		'usd':		pickett_int,
+		'tag':		pickett_int,
+		'qnfmt':	pickett_int,
+		**{f'qn{ul}{i+1}': pickett_int for ul in ('u', 'l') for i in range(n)},
+	}
+	return(dtype_dict)
+
+cat_dtypes = cat_dtypes_from_quanta()
 """dict: The data types of the *.cat format."""
 
-cat_dtypes_10_quanta = {
-	'x':		np.float64,
-	'error':	np.float64,
-	'y':		np.float64,
-	'degfreed':	pickett_int,
-	'elower':	np.float64,
-	'usd':		pickett_int,
-	'tag':		pickett_int,
-	'qnfmt':	pickett_int,
-	**{f'qn{ul}{i+1}': pickett_int for ul in ('u', 'l') for i in range(10)},
-}
-"""dict: The data types of the *.cat format for 10 quanta."""
 
-cat_widths = {
-	'x':		13,
-	'error':	 8,
-	'y':		 8,
-	'degfreed':	 2,
-	'elower':	10,
-	'usd':		 3,
-	'tag':		 7,
-	'qnfmt':	 4,
-	**{f'qn{ul}{i+1}': 2 for ul in ('u', 'l') for i in range(6)},
-}
+def cat_widths_from_quanta(n=6):
+	"""Create a widhts dict for a *.cat file with n quanta.
+	
+	Parameters
+    ----------
+	n: int
+		Number of quanta
+
+    Returns
+    -------
+    dict
+        Dictionary holding the *.cat widths.
+	"""
+	
+	n = max(6, n)
+	width_dict = {
+		'x':		13,
+		'error':	 8,
+		'y':		 8,
+		'degfreed':	 2,
+		'elower':	10,
+		'usd':		 3,
+		'tag':		 7,
+		'qnfmt':	 4,
+		**{f'qn{ul}{i+1}': 2 for ul in ('u', 'l') for i in range(n)},
+	}
+	return(width_dict)
+
+cat_widths = cat_widths_from_quanta()
 """dict: The widths of the *.cat format."""
 
-cat_widths_10_quanta = {
-	'x':		13,
-	'error':	 8,
-	'y':		 8,
-	'degfreed':	 2,
-	'elower':	10,
-	'usd':		 3,
-	'tag':		 7,
-	'qnfmt':	 4,
-	**{f'qn{ul}{i+1}': 2 for ul in ('u', 'l') for i in range(10)},
 
-}
-"""dict: The widths of the *.cat format for 10 quanta."""
+def lin_dtypes_from_quanta(n=6):
+	"""Create a dtype dict for a *.lin file with n quanta.
+	
+	Parameters
+    ----------
+	n: int
+		Number of quanta
 
-lin_dtypes = {
-	**{f'qn{ul}{i+1}': pickett_int for ul in ('u', 'l') for i in range(6)},
-	'x':		np.float64,
-	'error':	np.float64,
-	'weight':	np.float64,
-	'comment':	str,
-}
+    Returns
+    -------
+    dict
+        Dictionary holding the *.lin dtypes.
+	"""
+	
+	n = max(6, n)
+	dtype_dict = {
+		**{f'qn{ul}{i+1}': pickett_int for ul in ('u', 'l') for i in range(n)},
+		'x':		np.float64,
+		'error':	np.float64,
+		'weight':	np.float64,
+		'comment':	str,
+	}
+	return(dtype_dict)
+
+lin_dtypes = lin_dtypes_from_quanta()
 """dict: The data types of the *.lin format."""
 
-lin_dtypes_10_quanta = {
-	**{f'qn{ul}{i+1}': pickett_int for ul in ('u', 'l') for i in range(10)},
-	'x':		np.float64,
-	'error':	np.float64,
-	'weight':	np.float64,
-	'comment':	str,
-}
-"""dict: The data types of the *.lin format for 10 quanta."""
 
-egy_dtypes = {
-	'iblk':		np.int64,
-	'indx':		np.int64,
-	'egy':		np.float64,
-	'err':		np.float64,
-	'pmix':		np.float64,
-	'we':		np.int64,
-	':':		str,
-	**{f'qn{i+1}': pickett_int for i in range(6)},
+def egy_dtypes_from_quanta(n=6):
+	"""Create a dtype dict for a *.egy file with n quanta.
+	
+	Parameters
+    ----------
+	n: int
+		Number of quanta
 
-}
+    Returns
+    -------
+    dict
+        Dictionary holding the *.egy dtypes.
+	"""
+	
+	n = max(6, n)
+	dtype_dict = {
+		'iblk':		np.int64,
+		'indx':		np.int64,
+		'egy':		np.float64,
+		'err':		np.float64,
+		'pmix':		np.float64,
+		'we':		np.int64,
+		':':		str,
+		**{f'qn{i+1}': pickett_int for i in range(n)},
+	}
+	return(dtype_dict)
+
+egy_dtypes = egy_dtypes_from_quanta()
 """dict: The data types of the *.egy format."""
 
-egy_dtypes_10_quanta = {
-	'iblk':		np.int64,
-	'indx':		np.int64,
-	'egy':		np.float64,
-	'err':		np.float64,
-	'pmix':		np.float64,
-	'we':		np.int64,
-	':':		str,
-	**{f'qn{i+1}': pickett_int for i in range(10)},
-}
-"""dict: The data types of the *.egy format for 10 quanta."""
 
-egy_widths = {
-	'iblk':		 6,
-	'indx':		 5,
-	'egy':		18,
-	'err':		18,
-	'pmix':		11,
-	'we':		 5,
-	':':		 1,
-	**{f'qn{i+1}': 3 for i in range(6)},
-}
+def egy_widths_from_quanta(n=6):
+	"""Create a widths dict for a *.egy file with n quanta.
+	
+	Parameters
+    ----------
+	n: int
+		Number of quanta
+
+    Returns
+    -------
+    dict
+        Dictionary holding the *.egy widths.
+	"""
+
+	n = max(6, n)
+	width_dict = {
+		'iblk':		 6,
+		'indx':		 5,
+		'egy':		18,
+		'err':		18,
+		'pmix':		11,
+		'we':		 5,
+		':':		 1,
+		**{f'qn{i+1}': 3 for i in range(n)},
+	}
+	return(width_dict)
+
+egy_widths = egy_widths_from_quanta()
 """dict: The widths of the *.egy format."""
 
-egy_widths_10_quanta = {
-	'iblk':		 6,
-	'indx':		 5,
-	'egy':		18,
-	'err':		18,
-	'pmix':		11,
-	'we':		 5,
-	':':		 1,
-	**{f'qn{i+1}': 3 for i in range(10)},
-}
-"""dict: The widths of the *.egy format for 10 quanta."""
 
 # IS1,IS2,JQ,NQ,J,NN,FREQ,BLE,ER
 erham_dtypes = {
@@ -289,15 +353,15 @@ def format_(value, formatspecifier):
 	else:
 		return((f"{{:{formatspecifier}}}".format((maxvalue-0.1**decimals)*(-1)**negative)))
 
-def get_active_qns(df, use_10_quanta=None):
+def get_active_qns(df, quanta=None):
 	"""Return active quantum numbers.
 	
 	Parameters
     ----------
     df: dataframe
         Dataframe representing *.lin or *.cat file.
-    use_10_quanta: None or bool
-        If the 10 quanta format should be used. None means use global setting.
+    quanta: int or None
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
@@ -305,14 +369,12 @@ def get_active_qns(df, use_10_quanta=None):
 		Dictionary with the quantum numbers as keys and their activenesses as the values.
 	"""
 
+	quanta = max(6, quanta or QUANTA)
+
 	if not len(df):
 		raise Exception(f"You are trying to get the active quantum numbers of an empty dataframe.")
 	
-	if use_10_quanta is None and USE_10_QUANTA:
-		use_10_quanta = True
-	
-	n_qns = 6 if not use_10_quanta else 10
-	qns = {f"qn{ul}{i+1}": True for ul in ("u", "l") for i in range(n_qns)}
+	qns = {f"qn{ul}{i+1}": True for ul in ("u", "l") for i in range(quanta)}
 	for qn in qns.keys():
 		unique_values = df[qn].unique()
 		if len(unique_values) == 1 and unique_values[0] == SENTINEL:
@@ -452,7 +514,7 @@ def format_param_id(dict_, vib_digits):
 
 
 # Format functions
-def cat_to_df(fname, sort=True, use_10_quanta=None):
+def cat_to_df(fname, sort=True, quanta=None):
 	"""Convert *.cat file to dataframe.
 	
 	Parameters
@@ -463,8 +525,8 @@ def cat_to_df(fname, sort=True, use_10_quanta=None):
 		If the data should be sorted by the x column.
 	zeroes_as_empty: bool
 		If all zero columns should be interpreted as inactive columns.
-    use_10_quanta: None or bool
-        If the 10 quanta format should be used. None means use global setting.
+    quanta: int or None
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
@@ -472,11 +534,10 @@ def cat_to_df(fname, sort=True, use_10_quanta=None):
         Dataframe holding the *.cat data.
 	"""
 
-	if use_10_quanta is None and USE_10_QUANTA:
-		use_10_quanta = True
+	quanta = max(6, quanta or QUANTA)
 
-	dtypes = cat_dtypes if not use_10_quanta else cat_dtypes_10_quanta
-	widths = cat_widths if not use_10_quanta else cat_widths_10_quanta
+	dtypes = cat_dtypes_from_quanta(quanta)
+	widths = cat_widths_from_quanta(quanta)
 		
 	widths = widths.values()
 	columns = dtypes.keys()
@@ -484,29 +545,13 @@ def cat_to_df(fname, sort=True, use_10_quanta=None):
 	
 	data = pd.read_fwf(fname, widths=widths, names=columns, converters=converters, skip_blank_lines=True, comment="#").astype(dtypes)
 	data["y"] = 10 ** data["y"]
-	
-	## Reorder columns if use_10_quanta and more than 6
-	n_qns = 6 if not use_10_quanta else 10
-	qns_labels = list(columns)[-2*n_qns:]
-
-	noq = len(qns_labels)
-	for i in range(len(qns_labels)):
-		if all(SENTINEL == data[qns_labels[i]]):
-			noq = i
-			break
-	
-	noq = noq // 2
-	if noq > 6:
-		columns_qn = [f"qn{ul}{i+1}" for ul in ('u', 'l') for i in range(noq)] + [f"qn{ul}{i+1}" for ul in ('u', 'l') for i in range(noq, n_qns)]
-		data.columns = list(data.columns[:-2*n_qns]) + columns_qn
-
 	data["filename"] = str(fname)
 
 	if sort:
 		data.sort_values("x", inplace=True)
 	return(data)
 
-def lin_to_df(fname, sort=True, zeroes_as_empty=False, use_10_quanta=None):
+def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None):
 	"""Convert *.lin file to dataframe.
 	
 	Parameters
@@ -517,8 +562,8 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, use_10_quanta=None):
 		If the data should be sorted by the x column.
 	zeroes_as_empty: bool
 		If all zero columns should be interpreted as inactive columns.
-    use_10_quanta: None or bool
-        If the 10 quanta format should be used. None means use global setting.
+    quanta: int or None
+        The number of used quanta. None means use global setting.
 	
     Returns
     -------
@@ -526,16 +571,13 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, use_10_quanta=None):
         Dataframe holding the *.lin data.
 	"""
 
-	if use_10_quanta is None and USE_10_QUANTA:
-		use_10_quanta = True
-
-	dtypes = lin_dtypes if not use_10_quanta else lin_dtypes_10_quanta
-	n_qns = 6 if not use_10_quanta else 10
+	quanta = max(6, quanta or QUANTA)
+	dtypes = lin_dtypes_from_quanta(quanta)
 	
-	chars_for_qns = 3 * 2 * n_qns
+	chars_for_qns = 3 * 2 * quanta
 	widths = range(0, chars_for_qns + 1, 3)
 	column_names = list(dtypes.keys())
-	qns_labels = column_names[0:2*n_qns]
+	qns_labels = column_names[0:2*quanta]
 
 	
 	data = []
@@ -567,7 +609,6 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, use_10_quanta=None):
 						tmp[3] = comment
 					tmp[2] = 1
 			
-			
 			tmp_line_content = [pickett_int(line[i:j]) for i, j in zip(widths[:-1], widths[1:])] + tmp
 			data.append(tmp_line_content)
 	
@@ -596,23 +637,23 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, use_10_quanta=None):
 		
 	noq = noq // 2
 
-	columns_qn = [f"qn{ul}{i+1}" for ul in ('u', 'l') for i in range(noq)] + [f"qn{ul}{i+1}" for ul in ('u', 'l') for i in range(noq, n_qns)]
-	data.columns = columns_qn + list(data.columns[2*n_qns:])
+	columns_qn = [f"qn{ul}{i+1}" for ul in ('u', 'l') for i in range(noq)] + [f"qn{ul}{i+1}" for ul in ('u', 'l') for i in range(noq, quanta)]
+	data.columns = columns_qn + list(data.columns[2*quanta:])
 
 	if sort:
 		# Sort by x and by error to keep blends together
 		data.sort_values(["x", "error"], inplace=True)
 	return(data)
 
-def df_to_cat(df, use_10_quanta=None):
+def df_to_cat(df, quanta=None):
 	"""Convert dataframe to *.cat format.
 	
 	Parameters
     ----------
 	df: dataframe
 		Dataframe holding the *.cat data.
-    use_10_quanta: None or bool
-        If the 10 quanta format should be used. None means use global setting.
+    quanta: int or None
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
@@ -620,10 +661,8 @@ def df_to_cat(df, use_10_quanta=None):
         Data of the dataframe in *.cat format.
 	"""
 
-	if use_10_quanta is None and USE_10_QUANTA:
-		use_10_quanta = True
-
-	qnlabels = QNLABELS if not use_10_quanta else QNLABELS_10_QUANTA
+	quanta = max(6, quanta or QUANTA)
+	qnlabels = qnlabels_from_quanta(quanta)
 
 	lines = []
 
@@ -651,15 +690,15 @@ def df_to_cat(df, use_10_quanta=None):
 	
 	return("\n".join(lines))
 
-def df_to_lin(df, use_10_quanta=None):
+def df_to_lin(df, quanta=None):
 	"""Convert dataframe to *.lin format.
 	
 	Parameters
     ----------
 	df: dataframe
 		Dataframe holding the *.lin data.
-    use_10_quanta: None or bool
-        If the 10 quanta format should be used. None means use global setting.
+    quanta: int or None
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
@@ -667,10 +706,8 @@ def df_to_lin(df, use_10_quanta=None):
         Data of the dataframe in *.lin format.
 	"""
 
-	if use_10_quanta is None and USE_10_QUANTA:
-		use_10_quanta = True
-
-	qnlabels = QNLABELS if not use_10_quanta else QNLABELS_10_QUANTA
+	quanta = max(6, quanta or QUANTA)
+	qnlabels = qnlabels_from_quanta(quanta)
 	
 	lines = []
 
@@ -686,14 +723,14 @@ def df_to_lin(df, use_10_quanta=None):
 		comment = row["comment"].strip() if row["comment"] else ""
 		
 		freq = format_(row["x"], "13.4f")
-		error = format_(row["error"], "8.4f")
+		error = format_(row["error"], "8.4f") if abs(row["error"]) >= 1E-3 else f'{row["error"]:-8.1e}'
 		weight = format_(row["weight"], "13.4f")
 		lines.append(f"{qnsstring} {freq} {error} {weight}  {comment}")
 	lines.append("")
 	
 	return("\n".join(lines))
 
-def egy_to_df(fname, sort=True, use_10_quanta=None):
+def egy_to_df(fname, sort=True, quanta=None):
 	"""Convert *.egy file to dataframe.
 	
 	Parameters
@@ -702,8 +739,8 @@ def egy_to_df(fname, sort=True, use_10_quanta=None):
 		String, path, or file-like object holding the *.egy data.
 	sort: bool
 		If the data should be sorted by the egy column.
-    use_10_quanta: None or bool
-        If the 10 quanta format should be used. None means use global setting.
+    quanta: int or None
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
@@ -711,11 +748,10 @@ def egy_to_df(fname, sort=True, use_10_quanta=None):
         Dataframe holding the *.egy data.
 	"""
 
-	if use_10_quanta is None and USE_10_QUANTA:
-		use_10_quanta = True
+	quanta = max(6, quanta or QUANTA)
 
-	widths = egy_widths if not use_10_quanta else egy_widths_10_quanta
-	dtypes = egy_dtypes if not use_10_quanta else egy_dtypes_10_quanta
+	widths = egy_widths_from_quanta(quanta)
+	dtypes = egy_dtypes_from_quanta(quanta)
 
 	widths = widths.values()
 	columns = dtypes.keys()
@@ -730,15 +766,15 @@ def egy_to_df(fname, sort=True, use_10_quanta=None):
 		data.sort_values("egy", inplace=True)
 	return(data)
 
-def df_to_egy(df, use_10_quanta=None):
+def df_to_egy(df, quanta=None):
 	"""Convert dataframe to *.egy format.
 
 	Parameters
     ----------
 	df: dataframe
 		Dataframe holding the *.egy data.
-    use_10_quanta: None or bool
-        If the 10 quanta format should be used. None means use global setting.
+    quanta: int or None
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
@@ -746,10 +782,8 @@ def df_to_egy(df, use_10_quanta=None):
         Data of the dataframe in *.egy format.
 	"""
 
-	if use_10_quanta is None and USE_10_QUANTA:
-		use_10_quanta = True
-
-	qnlabels_energy = QNLABELS_ENERGY if not use_10_quanta else QNLABELS_ENERGY_10_QUANTA
+	quanta = max(6, quanta or QUANTA)
+	qnlabels_energy = qnlabels_energy_from_quanta(quanta)
 
 	lines = []
 
@@ -1501,7 +1535,7 @@ def finalize(cat_df=pd.DataFrame(), lin_df=pd.DataFrame(), qn_tdict={}, qn=4):
 	
 	return(cat_df, lin_df)
 
-def get_dr_candidates(df1, df2, use_10_quanta=None):
+def get_dr_candidates(df1, df2, quanta=None):
 	"""Get candidates for double-resonance measurements.
 
 	Parameters
@@ -1510,8 +1544,8 @@ def get_dr_candidates(df1, df2, use_10_quanta=None):
 		The *.cat/*.lin data for the first source in dataframe form.
 	df2: dataframe
 		The *.cat/*.lin data for the second source in dataframe form.
-    use_10_quanta: None or bool
-        If the 10 quanta format should be used. None means use global setting.
+    quanta: int or None
+        The number of used quanta. None means use global setting.
 	
     Returns
     -------
@@ -1519,15 +1553,13 @@ def get_dr_candidates(df1, df2, use_10_quanta=None):
 		Dataframe containing the double-resonance candidates.
 	"""
 	
-	if use_10_quanta is None and USE_10_QUANTA:
-		use_10_quanta = True
-	
-	n_qns = 6 if not use_10_quanta else 10
-	qns_active1, qns_active2 = get_active_qns(df1, use_10_quanta=use_10_quanta), get_active_qns(df2, use_10_quanta=use_10_quanta)
-	qns_upper = [f"qnu{i+1}" for i in range(n_qns) if qns_active1[f"qnu{i+1}"] and qns_active2[f"qnu{i+1}"]]
-	qns_lower = [f"qnl{i+1}" for i in range(n_qns) if qns_active1[f"qnl{i+1}"] and qns_active2[f"qnl{i+1}"]]
+	quanta = max(6, quanta or QUANTA)
 
-	qns_inactive = [f"qn{ul}{i+1}" for i in range(n_qns) for ul in ("u", "l") if not (qns_active1[f"qnu{i+1}"] and qns_active2[f"qnu{i+1}"])]
+	qns_active1, qns_active2 = get_active_qns(df1, quanta=quanta), get_active_qns(df2, quanta=quanta)
+	qns_upper = [f"qnu{i+1}" for i in range(quanta) if qns_active1[f"qnu{i+1}"] and qns_active2[f"qnu{i+1}"]]
+	qns_lower = [f"qnl{i+1}" for i in range(quanta) if qns_active1[f"qnl{i+1}"] and qns_active2[f"qnl{i+1}"]]
+
+	qns_inactive = [f"qn{ul}{i+1}" for i in range(quanta) for ul in ("u", "l") if not (qns_active1[f"qnu{i+1}"] and qns_active2[f"qnu{i+1}"])]
 
 	schemes = {
 		"pro_ul": (qns_upper, qns_lower),
