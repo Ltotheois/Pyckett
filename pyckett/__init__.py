@@ -760,7 +760,7 @@ def df_to_lin(df, quanta=None):
         qnsstring = qnsstring + padstring
         comment = row["comment"].strip() if row["comment"] else ""
 
-        freq = format_(row["x"], "13.4f")
+        freq = format_(row["x"], "15.4f") if row["error"] >= 0 else format_(row["x"], "15.10f")
         error = (
             format_(row["error"], "8.4f")
             if abs(row["error"]) >= 1e-3

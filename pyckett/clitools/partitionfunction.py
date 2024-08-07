@@ -13,8 +13,7 @@ recommended_use = """
 Recommended procedure for determining the partition function
 
 Determine the partition function for the ground state unless all vibrational states are treated correctly.
-Exclude parameters higher than sextic order to prevent roll-over.
-Set Jmax and Kmax sufficiently high for convergence. When in doubt check with the --convergence option.
+Set Jmax and Kmax sufficiently high for convergence but not too high (too avoid rollover). When in doubt check with the --convergence option.
 """
 
 Temperatures = [
@@ -42,7 +41,7 @@ factor_pickett = 1.43878
 # factor = factor_pickett
 
 
-def partition_function(egy_df, T):
+def partitionfunction_at_temperature(egy_df, T, factor=factor):
     egy_df["tmp"] = (2 * egy_df["qn1"] + 1) * np.exp(-egy_df["egy"] * factor / T)
     return egy_df["tmp"].sum()
 
@@ -82,38 +81,42 @@ def partitionfunction():
 
     egyfilename = args.egyfile
 
-    if args.use_pickett_factor:
-        factor = factor_pickett
-
     if args.temperatures:
         Temperatures.extend(args.temperatures)
         Temperatures.sort(reverse=True)
-
+    
     egy_df = pyckett.egy_to_df(egyfilename)
+    calc_partition_function(egy_df, Temperatures, convergence_plot=args.convergence, print_output=True, use_pickett_factor=args.use_pickett_factor)
+
+
+def calc_partition_function(egy_df, temperatures, print_output=False, convergence_plot=False, use_pickett_factor=False):
     Jmax = egy_df["qn1"].max()
     Kamax = egy_df["qn2"].max()
     Kcmax = egy_df["qn3"].max()
 
-    partition_functions = {T: partition_function(egy_df, T) for T in Temperatures}
+    tmp_factor = factor_pickett if use_pickett_factor else factor
 
-    print(f"Partition function with J_max = {Jmax}, Ka_max = {Kamax}, Kc_max = {Kcmax}")
-    for key, value in partition_functions.items():
-        print(f"T = {key:6.2f}; Q = {value:12.4f}; log Q = {np.log10(value):7.4f}")
+    partition_functions = {T: partitionfunction_at_temperature(egy_df, T, factor=tmp_factor) for T in temperatures}
 
-    if args.convergence:
+    if print_output:
+        print(f"Partition function with J_max = {Jmax}, Ka_max = {Kamax}, Kc_max = {Kcmax}")
+        for key, value in partition_functions.items():
+            print(f"T = {key:6.2f}; Q = {value:12.4f}; log Q = {np.log10(value):7.4f}")
+
+    if convergence_plot:
         import matplotlib.pyplot as plt
 
         Js = np.arange(0, Jmax)
-        results = np.zeros((len(Temperatures), len(Js)))
+        results = np.zeros((len(temperatures), len(Js)))
 
         for i, Jupper in enumerate(Js):
             tmp_df = egy_df.loc[egy_df["qn1"] <= Jupper].copy()
 
-            for j, T in enumerate(Temperatures):
-                pf = partition_function(tmp_df, T)
+            for j, T in enumerate(temperatures):
+                pf = partitionfunction_at_temperature(tmp_df, T, factor=tmp_factor)
                 results[j, i] = pf
 
-        for j, T in enumerate(Temperatures):
+        for j, T in enumerate(temperatures):
             ys = results[j, :]
             plt.plot(Js, ys, label=f"{T=} K")
 
@@ -121,3 +124,5 @@ def partitionfunction():
         plt.ylabel("$Q$")
         plt.legend()
         plt.show()
+    
+    return(partition_functions)
