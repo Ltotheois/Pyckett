@@ -9,6 +9,18 @@ import pyckett
 import numpy as np
 
 
+class TestFormatting(unittest.TestCase):
+    self.assertEqual(pyckett.format_(359, '2p'), 'Z9')
+    self.assertEqual(pyckett.format_(360, '2p'), '**')
+    self.assertEqual(pyckett.format_(12, '2p'), '12')
+    self.assertEqual(pyckett.format_(-10, '2p'), 'a0')
+    self.assertEqual(pyckett.format_(-270, '2p'), '**')
+    self.assertEqual(pyckett.pickett_int('Z9'), 359)
+    self.assertEqual(pyckett.pickett_int('**'), 99)
+    self.assertEqual(pyckett.pickett_int('12'), 12)
+    self.assertEqual(pyckett.pickett_int('a0'), -10)
+    self.assertEqual(pyckett.pickett_int('**'), 99)
+
 class TestLabels(unittest.TestCase):
     def test_QNLABELS(self):
         self.assertEqual(pyckett.qnlabels_from_quanta(), pyckett.QNLABELS)

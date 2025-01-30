@@ -350,11 +350,8 @@ def format_(value, formatspecifier):
         value = int(value)
         sign = np.sign(value)
         quotient, modulo = divmod(abs(value), 10**(totallength-1))
-        quotient *= np.sign(value)
+        quotient *= sign
         
-
-        print(f'{quotient=}, {modulo=}')
-
         if quotient >= 36 or quotient <= -27:
             return('*' * totallength)
         
@@ -724,7 +721,7 @@ def df_to_cat(df, quanta=None):
         intens = format_(intens, "8.4f")
         dof = format_(row["degfreed"], "2d")
         elower = format_(row["elower"], "10.4f")
-        usd = format_(row["usd"], "3d")
+        usd = format_(row["usd"], "3p")
         tag = format_(row["tag"], "7d")
         qnfmt = format_(row["qnfmt"], "4d")
 
@@ -734,7 +731,7 @@ def df_to_cat(df, quanta=None):
             if qn == SENTINEL:
                 qnsstring += "  "
             else:
-                qnsstring += format_(row[qnlabel], "2d")
+                qnsstring += format_(row[qnlabel], "2p")
 
         lines.append(f"{freq}{error}{intens}{dof}{elower}{usd}{tag}{qnfmt}{qnsstring}")
     lines.append("")
