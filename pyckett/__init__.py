@@ -110,9 +110,15 @@ class pickett_int(np.int64):
             return np.int64(value)
 
         elif init_char.isalpha():
-            return np.int64(str(ord(init_char.upper()) - 55) + value[1:])
+            init_char_ord = ord(init_char)
+            if 97 <= init_char_ord <= 122:
+                return np.int64(str(96 - ord(init_char)) + value[1:])
+            elif 65 <= init_char_ord <= 90:
+                return np.int64(str(ord(init_char) - 55) + value[1:])
+            else:
+                raise ValueError(f'Could not convert \'{value}\' to integer.')
 
-        # Special case for ERHAM cat files
+        # Special case for ERHAM *.cat files
         # ERHAM writes ** for quantum numbers higher than 99
         elif all([x == "*" for x in value]):
             return np.int64(99)
@@ -138,11 +144,11 @@ def cat_dtypes_from_quanta(n=6):
         "x": np.float64,
         "error": np.float64,
         "y": np.float64,
-        "degfreed": pickett_int,
+        "degfreed": np.int8,
         "elower": np.float64,
         "usd": pickett_int,
-        "tag": pickett_int,
-        "qnfmt": pickett_int,
+        "tag": np.int32,
+        "qnfmt": np.int16,
         **{f"qn{ul}{i+1}": pickett_int for ul in ("u", "l") for i in range(n)},
     }
     return dtype_dict
@@ -201,7 +207,7 @@ def lin_dtypes_from_quanta(n=6):
 
     n = max(6, n)
     dtype_dict = {
-        **{f"qn{ul}{i+1}": pickett_int for ul in ("u", "l") for i in range(n)},
+        **{f"qn{ul}{i+1}": np.int16 for ul in ("u", "l") for i in range(n)},
         "x": np.float64,
         "error": np.float64,
         "weight": np.float64,
@@ -237,7 +243,7 @@ def egy_dtypes_from_quanta(n=6):
         "pmix": np.float64,
         "we": np.int64,
         ":": str,
-        **{f"qn{i+1}": pickett_int for i in range(n)},
+        **{f"qn{i+1}": np.int16 for i in range(n)},
     }
     return dtype_dict
 
@@ -337,15 +343,15 @@ def format_(value, formatspecifier):
     str
         Formatted string of value.
     """
-    integer = formatspecifier.endswith("d")
+    is_integer = formatspecifier.endswith("d")
 
-    if integer:
+    if is_integer:
         totallength, decimals = int(formatspecifier[:-1]), 0
     else:
         tmp = formatspecifier[:-1].split(".")
         totallength, decimals = map(int, tmp)
 
-    if integer:
+    if is_integer:
         value = int(value)
 
     negative = value < 0
@@ -357,7 +363,7 @@ def format_(value, formatspecifier):
     if abs(value) < maxvalue:
         return f"{{:{formatspecifier}}}".format(value)
 
-    elif integer and abs(value) < maxascii:
+    elif is_integer and abs(value) < maxascii:
         firsttwodigits = value // 10 ** (int(np.log10(value)) - 1)
         tmp = chr(55 + firsttwodigits)
         return tmp + f"{{:{formatspecifier}}}".format(value)[2:]
@@ -642,7 +648,7 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None):
                     tmp[2] = 1
 
             tmp_line_content = [
-                pickett_int(line[i:j]) for i, j in zip(widths[:-1], widths[1:])
+                np.int16(line[i:j]) for i, j in zip(widths[:-1], widths[1:])
             ] + tmp
             data.append(tmp_line_content)
 
