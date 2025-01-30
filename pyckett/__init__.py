@@ -53,15 +53,15 @@ QUANTA = 6
 def qnlabels_from_quanta(n=6):
     """Create the qnlabels for n quanta.
 
-            Parameters
+    Parameters
     ----------
-            n: int
-                            Number of quanta
+    n: int
+        Number of quanta
 
     Returns
     -------
     dict
-            List holding the quantum number labels for n quanta.
+        List holding the quantum number labels for n quanta.
     """
 
     n = max(6, n)
@@ -75,15 +75,15 @@ QNLABELS = qnlabels_from_quanta()
 def qnlabels_energy_from_quanta(n=6):
     """Create the qnlabels for energy levels for n quanta.
 
-            Parameters
+    Parameters
     ----------
-            n: int
-                            Number of quanta
+    n: int
+        Number of quanta
 
     Returns
     -------
     dict
-            List holding the quantum number labels for energies for n quanta.
+        List holding the quantum number labels for energies for n quanta.
     """
 
     n = max(6, n)
@@ -119,17 +119,18 @@ class pickett_int(np.int64):
 
 
 def cat_dtypes_from_quanta(n=6):
-    """Create a dtype dict for a *.cat file with n quanta.
+    """
+    Create a dtype dict for a *.cat file with n quanta.
 
-            Parameters
+    Parameters
     ----------
-            n: int
-                            Number of quanta
+    n: int
+        Number of quanta
 
     Returns
     -------
     dict
-            Dictionary holding the *.cat dtypes.
+        Dictionary holding the *.cat dtypes.
     """
 
     n = max(6, n)
@@ -154,15 +155,15 @@ cat_dtypes = cat_dtypes_from_quanta()
 def cat_widths_from_quanta(n=6):
     """Create a widhts dict for a *.cat file with n quanta.
 
-            Parameters
+    Parameters
     ----------
-            n: int
-                            Number of quanta
+    n: int
+        Number of quanta
 
     Returns
     -------
     dict
-            Dictionary holding the *.cat widths.
+        Dictionary holding the *.cat widths.
     """
 
     n = max(6, n)
@@ -187,15 +188,15 @@ cat_widths = cat_widths_from_quanta()
 def lin_dtypes_from_quanta(n=6):
     """Create a dtype dict for a *.lin file with n quanta.
 
-            Parameters
+    Parameters
     ----------
-            n: int
-                            Number of quanta
+    n: int
+        Number of quanta
 
     Returns
     -------
     dict
-            Dictionary holding the *.lin dtypes.
+        Dictionary holding the *.lin dtypes.
     """
 
     n = max(6, n)
@@ -216,15 +217,15 @@ lin_dtypes = lin_dtypes_from_quanta()
 def egy_dtypes_from_quanta(n=6):
     """Create a dtype dict for a *.egy file with n quanta.
 
-            Parameters
+    Parameters
     ----------
-            n: int
-                            Number of quanta
+    n: int
+        Number of quanta
 
     Returns
     -------
     dict
-            Dictionary holding the *.egy dtypes.
+        Dictionary holding the *.egy dtypes.
     """
 
     n = max(6, n)
@@ -248,15 +249,15 @@ egy_dtypes = egy_dtypes_from_quanta()
 def egy_widths_from_quanta(n=6):
     """Create a widths dict for a *.egy file with n quanta.
 
-            Parameters
+    Parameters
     ----------
-            n: int
-                            Number of quanta
+    n: int
+        Number of quanta
 
     Returns
     -------
     dict
-            Dictionary holding the *.egy widths.
+        Dictionary holding the *.egy widths.
     """
 
     n = max(6, n)
@@ -307,15 +308,15 @@ PARUPDATE = {
 def str_to_stream(string):
     """Convert string to stream.
 
-            Parameters
+    Parameters
     ----------
     string: str
-            The string to be converted.
+        The string to be converted.
 
     Returns
     -------
     io.StringIO
-            Stream of string.
+        Stream of string.
 
     """
     return io.StringIO(string)
@@ -324,17 +325,17 @@ def str_to_stream(string):
 def format_(value, formatspecifier):
     """Format value to the appropriate SPFIT/SPCAT format.
 
-            Parameters
+    Parameters
     ----------
     value: number
-            Value to be formatted.
-            formatspecifier: str
-                            Format to be used.
+        Value to be formatted.
+    formatspecifier: str
+        Format to be used.
 
     Returns
     -------
     str
-            Formatted string of value.
+        Formatted string of value.
     """
     integer = formatspecifier.endswith("d")
 
@@ -370,17 +371,17 @@ def format_(value, formatspecifier):
 def get_active_qns(df, quanta=None):
     """Return active quantum numbers.
 
-            Parameters
+    Parameters
     ----------
     df: dataframe
-            Dataframe representing *.lin or *.cat file.
+        Dataframe representing *.lin or *.cat file.
     quanta: int or None
-            The number of used quanta. None means use global setting.
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
     dict
-                            Dictionary with the quantum numbers as keys and their activenesses as the values.
+        Dictionary with the quantum numbers as keys and their activenesses as the values.
     """
 
     quanta = max(6, quanta or QUANTA)
@@ -430,18 +431,18 @@ def get_par_digits(vib_digits):
 def parse_fit_result(message, var_dict):
     """Find relevant stats in SPFIT output.
 
-            Parameters
+    Parameters
     ----------
     message: str
-            The SPFIT output.
-            var_dict: dict
-                            The dict holding the *.var file data.
+        The SPFIT output.
+    var_dict: dict
+        The dict holding the *.var file data.
 
     Returns
     -------
     dict
-            Holds the following stats: rms, wrms, wrms_old, rejected_lines,
-                            diverging, paramuncertainties.
+        Holds the following stats: rms, wrms, wrms_old, rejected_lines,
+        diverging, paramuncertainties.
     """
 
     results = {}
@@ -490,15 +491,15 @@ def parse_fit_result(message, var_dict):
 def check_uncertainties(var_dict):
     """Calcualte relative parameter uncertainties.
 
-            Parameters
+    Parameters
     ----------
-            var_dict: dict
-                            The dict holding the *.var file data.
+    var_dict: dict
+        The dict holding the *.var file data.
 
     Returns
     -------
     dict
-            Keys are parameter ids and values are relative uncertainties.
+        Keys are parameter ids and values are relative uncertainties.
     """
     params = var_dict["PARAMS"]
     rel_uncs = {}
@@ -541,21 +542,21 @@ def format_param_id(dict_, vib_digits):
 def cat_to_df(fname, sort=True, quanta=None):
     """Convert *.cat file to dataframe.
 
-            Parameters
+    Parameters
     ----------
-            fname: str, path object, or file-like object
-                            String, path, or file-like object holding the *.cat data.
-            sort: bool
-                            If the data should be sorted by the x column.
-            zeroes_as_empty: bool
-                            If all zero columns should be interpreted as inactive columns.
+    fname: str, path object, or file-like object
+        String, path, or file-like object holding the *.cat data.
+    sort: bool
+        If the data should be sorted by the x column.
+    zeroes_as_empty: bool
+        If all zero columns should be interpreted as inactive columns.
     quanta: int or None
-            The number of used quanta. None means use global setting.
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
     dataframe
-            Dataframe holding the *.cat data.
+        Dataframe holding the *.cat data.
     """
 
     quanta = max(6, quanta or QUANTA)
@@ -586,16 +587,16 @@ def cat_to_df(fname, sort=True, quanta=None):
 def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None):
     """Convert *.lin file to dataframe.
 
-            Parameters
+    Parameters
     ----------
-            fname: path, or file-like object
-                            Path, or file-like object holding the *.lin data.
-            sort: bool
-                            If the data should be sorted by the x column.
-            zeroes_as_empty: bool
-                            If all zero columns should be interpreted as inactive columns.
+    fname: path, or file-like object
+        Path, or file-like object holding the *.lin data.
+    sort: bool
+        If the data should be sorted by the x column.
+    zeroes_as_empty: bool
+        If all zero columns should be interpreted as inactive columns.
     quanta: int or None
-            The number of used quanta. None means use global setting.
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
@@ -686,17 +687,17 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None):
 def df_to_cat(df, quanta=None):
     """Convert dataframe to *.cat format.
 
-            Parameters
+    Parameters
     ----------
-            df: dataframe
-                            Dataframe holding the *.cat data.
+    df: dataframe
+        Dataframe holding the *.cat data.
     quanta: int or None
-            The number of used quanta. None means use global setting.
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
     str
-            Data of the dataframe in *.cat format.
+        Data of the dataframe in *.cat format.
     """
 
     quanta = max(6, quanta or QUANTA)
@@ -732,17 +733,17 @@ def df_to_cat(df, quanta=None):
 def df_to_lin(df, quanta=None):
     """Convert dataframe to *.lin format.
 
-            Parameters
+    Parameters
     ----------
-            df: dataframe
-                            Dataframe holding the *.lin data.
+    df: dataframe
+        Dataframe holding the *.lin data.
     quanta: int or None
-            The number of used quanta. None means use global setting.
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
     str
-            Data of the dataframe in *.lin format.
+        Data of the dataframe in *.lin format.
     """
 
     quanta = max(6, quanta or QUANTA)
@@ -781,19 +782,19 @@ def df_to_lin(df, quanta=None):
 def egy_to_df(fname, sort=True, quanta=None):
     """Convert *.egy file to dataframe.
 
-            Parameters
+    Parameters
     ----------
-            fname: str, path object, or file-like object
-                            String, path, or file-like object holding the *.egy data.
-            sort: bool
-                            If the data should be sorted by the egy column.
+    fname: str, path object, or file-like object
+        String, path, or file-like object holding the *.egy data.
+    sort: bool
+        If the data should be sorted by the egy column.
     quanta: int or None
-            The number of used quanta. None means use global setting.
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
     dataframe
-            Dataframe holding the *.egy data.
+        Dataframe holding the *.egy data.
     """
 
     quanta = max(6, quanta or QUANTA)
@@ -825,17 +826,17 @@ def egy_to_df(fname, sort=True, quanta=None):
 def df_to_egy(df, quanta=None):
     """Convert dataframe to *.egy format.
 
-            Parameters
+    Parameters
     ----------
-            df: dataframe
-                            Dataframe holding the *.egy data.
+    df: dataframe
+        Dataframe holding the *.egy data.
     quanta: int or None
-            The number of used quanta. None means use global setting.
+        The number of used quanta. None means use global setting.
 
     Returns
     -------
     str
-            Data of the dataframe in *.egy format.
+        Data of the dataframe in *.egy format.
     """
 
     quanta = max(6, quanta or QUANTA)
@@ -868,15 +869,15 @@ def df_to_egy(df, quanta=None):
 def parvar_to_dict(fname):
     """Convert *.par or *.var file to dict.
 
-            Parameters
+    Parameters
     ----------
-            fname: str, or path object, or file-like object
-                            String, path, or file-like object holding the *.par or *.var data.
+    fname: str, or path object, or file-like object
+        String, path, or file-like object holding the *.par or *.var data.
 
     Returns
     -------
     dict
-            Dictionary holding the *.par/*.var data.
+        Dictionary holding the *.par/*.var data.
     """
     result = {}
     tmp_file = open(fname, "r") if not isinstance(fname, io.StringIO) else fname
@@ -978,15 +979,15 @@ def parvar_to_dict(fname):
 def dict_to_parvar(dict_):
     """Convert dict to *.par/*.var format.
 
-            Parameters
+    Parameters
     ----------
-            dict_: dict
-                            Dict holdign the *.par/*.var data.
+    dict_: dict
+        Dict holdign the *.par/*.var data.
 
     Returns
     -------
     str
-            Data of the dict in *.par/*.var format.
+        Data of the dict in *.par/*.var format.
     """
     output = []
     output.append(dict_["TITLE"])
@@ -1064,15 +1065,15 @@ def dict_to_parvar(dict_):
 def int_to_dict(fname):
     """Convert *.int file to dict.
 
-            Parameters
+    Parameters
     ----------
-            fname: str, or path object, or file-like object
-                            String, path, or file-like object holding the *.int data.
+    fname: str, or path object, or file-like object
+        String, path, or file-like object holding the *.int data.
 
     Returns
     -------
     dict
-            Dictionary holding the *.int data.
+        Dictionary holding the *.int data.
     """
     result = {}
     tmp_file = open(fname, "r") if not isinstance(fname, io.StringIO) else fname
@@ -1127,15 +1128,15 @@ def int_to_dict(fname):
 def dict_to_int(dict_):
     """Convert dict to *.int format.
 
-            Parameters
+    Parameters
     ----------
-            dict_: dict
-                            Dict holdign the *.int data.
+    dict_: dict
+        Dict holdign the *.int data.
 
     Returns
     -------
     str
-            Data of the dict in *.int format.
+        Data of the dict in *.int format.
     """
     output = []
     output.append(dict_["TITLE"])
@@ -1182,17 +1183,17 @@ def dict_to_int(dict_):
 def erhamlines_to_df(fname, sort=True):
     """Convert ERHAM line data to dataframe.
 
-            Parameters
+    Parameters
     ----------
-            fname: path, or file-like object
-                            Path, or file-like object holding the *.lin data.
-            sort: bool
-                            If the data should be sorted by the x column.
+    fname: path, or file-like object
+        Path, or file-like object holding the *.lin data.
+    sort: bool
+        If the data should be sorted by the x column.
 
     Returns
     -------
     dataframe
-            Dataframe holding the *.lin data.
+        Dataframe holding the *.lin data.
     """
     noc = len(erham_dtypes)
     data = []
@@ -1230,15 +1231,15 @@ def erhamlines_to_df(fname, sort=True):
 def df_to_erhamlines(df):
     """Convert dataframe to ERHAM line list.
 
-            Parameters
+    Parameters
     ----------
-            df: dataframe
-                            Dataframe holding the *.lin data.
+    df: dataframe
+        Dataframe holding the *.lin data.
 
     Returns
     -------
     str
-            Data of the dataframe in ERHAM line list format.
+        Data of the dataframe in ERHAM line list format.
     """
     lines = []
 
@@ -1288,21 +1289,21 @@ def df_to_erhamlines(df):
 def run_spfit(fname, parameterfile="", path=None, wd=None):
     """Run SPFIT.
 
-            Parameters
+    Parameters
     ----------
-            fname: str
-                            Name of the *.lin file or basename for *.lin and *.par file.
-            parameterfile: str
-                            Name of the *.par file.
-            path: str
-                            Path of SPFIT. If falsy, the environment variable will be tried.
-            wd: str, or path object
-                            Working directory to be used. The working directory should contain the *.lin and *.par file.
+    fname: str
+        Name of the *.lin file or basename for *.lin and *.par file.
+    parameterfile: str
+        Name of the *.par file.
+    path: str
+        Path of SPFIT. If falsy, the environment variable will be tried.
+    wd: str, or path object
+        Working directory to be used. The working directory should contain the *.lin and *.par file.
 
     Returns
     -------
-            str
-                            Output message of the SPFIT run.
+    str
+        Output message of the SPFIT run.
     """
     if path:
         path = os.path.abspath(path)
@@ -1319,21 +1320,21 @@ def run_spfit(fname, parameterfile="", path=None, wd=None):
 def run_spcat(fname, parameterfile="", path=None, wd=None):
     """Run SPCAT.
 
-            Parameters
+    Parameters
     ----------
-            fname: str
-                            Name of the *.int file or basename for *.int and *.var file.
-            parameterfile: str
-                            Name of the *.var file.
-            path: str
-                            Path of SPCAT. If falsy, the environment variable will be tried.
-            wd: str, or path object
-                            Working directory to be used. The working directory should contain the *.int and *.var file.
+    fname: str
+        Name of the *.int file or basename for *.int and *.var file.
+    parameterfile: str
+        Name of the *.var file.
+    path: str
+        Path of SPCAT. If falsy, the environment variable will be tried.
+    wd: str, or path object
+        Working directory to be used. The working directory should contain the *.int and *.var file.
 
     Returns
     -------
-            str
-                            Output message of the SPCAT run.
+    str
+        Output message of the SPCAT run.
     """
     if path:
         path = os.path.abspath(path)
@@ -1350,17 +1351,17 @@ def run_spcat(fname, parameterfile="", path=None, wd=None):
 def run_subprocess(command, wd=None):
     """Run a subprocess specified by a command.
 
-            Parameters
+    Parameters
     ----------
-            command: str
-                            Command to be executed.
-            wd: str, or path object
-                            Working directory to be used.
+    command: str
+        Command to be executed.
+    wd: str, or path object
+        Working directory to be used.
 
     Returns
     -------
-            str
-                            Output of the executed command.
+    str
+        Output of the executed command.
     """
     if wd is None:
         wd = os.getcwd()
@@ -1372,19 +1373,19 @@ def run_subprocess(command, wd=None):
 def run_spfit_v(par_dict, lin_df, spfit_path=None):
     """Run SPFIT virtually.
 
-            Parameters
+    Parameters
     ----------
-            par_dict: dict
-                            The *.par data in dict form.
-            lin_df: dataframe
-                            The *.lin data in DataFrame form.
-            spfit_path: str
-                            Path of SPFIT. If falsy, the environment variable will be tried.
+    par_dict: dict
+        The *.par data in dict form.
+    lin_df: dataframe
+        The *.lin data in DataFrame form.
+    spfit_path: str
+        Path of SPFIT. If falsy, the environment variable will be tried.
 
     Returns
     -------
-            dict
-                            Holds the resulting files and the output message.
+    dict
+        Holds the resulting files and the output message.
     """
     with tempfile.TemporaryDirectory(prefix="pyckett_") as tmp_dir:
         with open(os.path.join(tmp_dir, "tmp.par"), "w+") as par_file, open(
@@ -1414,19 +1415,19 @@ def run_spfit_v(par_dict, lin_df, spfit_path=None):
 def run_spcat_v(var_dict, int_dict, spcat_path=None):
     """Run SPCAT virtually.
 
-            Parameters
+    Parameters
     ----------
-            var_dict: dict
-                            The *.var data in dict form.
-            int_dict: dict
-                            The *.int data in dict form.
-            spcat_path: str
-                            Path of SPCAT. If falsy, the environment variable will be tried.
+    var_dict: dict
+        The *.var data in dict form.
+    int_dict: dict
+        The *.int data in dict form.
+    spcat_path: str
+        Path of SPCAT. If falsy, the environment variable will be tried.
 
     Returns
     -------
-            dict
-                            Holds the resulting files and the output message.
+    dict
+        Holds the resulting files and the output message.
     """
     with tempfile.TemporaryDirectory(prefix="pyckett") as tmp_dir:
         with open(os.path.join(tmp_dir, "tmp.var"), "w+") as var_file, open(
@@ -1460,22 +1461,22 @@ def run_spcat_v(var_dict, int_dict, spcat_path=None):
 def check_crossings(egy_df, states, kas, Jmax=60):
     """Check energy level series for crossings.
 
-            This function is currently specific to asymmetric molecules where the state is the 4th quantum number
-            and Ka is the second quantum number.
+    This function is currently specific to asymmetric molecules where the state is the 4th quantum number
+    and Ka is the second quantum number.
 
-            Parameters
+    Parameters
     ----------
-            egy_df: dataframe
-                            The *.egy data in dataframe form.
-            states: dict
-                            The states that should be checked.
-            kas: iterable of ints
-                            Kas to be checked for each state.
+    egy_df: dataframe
+        The *.egy data in dataframe form.
+    states: dict
+        The states that should be checked.
+    kas: iterable of ints
+        Kas to be checked for each state.
 
     Returns
     -------
-            str
-                            Report of the crossings in string format.
+    str
+        Report of the crossings in string format.
     """
     output = []
     series_list = []
@@ -1534,18 +1535,18 @@ def check_crossings(egy_df, states, kas, Jmax=60):
 def mixing_coefficient(egy_df, query_strings, save_fname=None, cmap="plasma_r"):
     """Plot the mixing coefficients of energy levels.
 
-            Parameters
+    Parameters
     ----------
-            egy_df: dataframe
-                            The *.egy data in dataframe form.
-            query_string: str or iterable of strs
-                            Query condition(s) to select a subset of energy levels.
-            save_fname: str or None
-                            If truthy, the filename of the output file.
+    egy_df: dataframe
+        The *.egy data in dataframe form.
+    query_string: str or iterable of strs
+        Query condition(s) to select a subset of energy levels.
+    save_fname: str or None
+        If truthy, the filename of the output file.
 
     Returns
     -------
-            None
+        None
     """
 
     if isinstance(query_strings, str):
@@ -1616,23 +1617,23 @@ def add_parameter(
 ):
     """Check which parameter should be added to a *.par file.
 
-            Parameters
+    Parameters
     ----------
-            par_dict: dict
-                            The *.par data in dict form.
-            lin_df: dataframe
-                            The *.lin data in dataframe form.
-            param_candidates: iterable of ints, or iterables of ints
-                            The parameter ids to be checked or the tuple (id, value, unc) of the parameter to be checked.
-            sort: bool
-                            If the returned runs should be sorted by rms.
-            spfit_path:
-                            The path to SPFIT that is passed to the underlying :func:`run_spfit_v`.
+    par_dict: dict
+        The *.par data in dict form.
+    lin_df: dataframe
+        The *.lin data in dataframe form.
+    param_candidates: iterable of ints, or iterables of ints
+        The parameter ids to be checked or the tuple (id, value, unc) of the parameter to be checked.
+    sort: bool
+        If the returned runs should be sorted by rms.
+    spfit_path:
+        The path to SPFIT that is passed to the underlying :func:`run_spfit_v`.
 
     Returns
     -------
-            runs: list of dicts
-                            The results for each parameter in dictionary format. Each result consists of id, rms, par, stats.
+    runs: list of dicts
+        The results for each parameter in dictionary format. Each result consists of id, rms, par, stats.
     """
     runs = []
 
@@ -1674,23 +1675,23 @@ def omit_parameter(
 ):
     """Check which parameter should be omitted from a *.par file.
 
-            Parameters
+    Parameters
     ----------
-            par_dict: dict
-                            The *.par data in dict form.
-            lin_df: dataframe
-                            The *.lin data in dataframe form.
-            param_ids: iterable of ints
-                            The parameter ids to be checked.
-            sort: bool
-                            If the returned runs should be sorted by rms.
-            spfit_path:
-                            The path to SPFIT that is passed to the underlying :func:`run_spfit_v`.
+    par_dict: dict
+        The *.par data in dict form.
+    lin_df: dataframe
+        The *.lin data in dataframe form.
+    param_ids: iterable of ints
+        The parameter ids to be checked.
+    sort: bool
+        If the returned runs should be sorted by rms.
+    spfit_path:
+        The path to SPFIT that is passed to the underlying :func:`run_spfit_v`.
 
     Returns
     -------
-            runs: list of dicts
-                            The results for each parameter in dictionary format. Each result consists of id, rms, par, stats.
+    runs: list of dicts
+        The results for each parameter in dictionary format. Each result consists of id, rms, par, stats.
     """
     runs = []
 
@@ -1734,24 +1735,24 @@ def omit_parameter(
 def finalize(cat_df=pd.DataFrame(), lin_df=pd.DataFrame(), qn_tdict={}, qn=4):
     """Finalize the *.cat and *.lin files of a fit.
 
-            Parameters
+    Parameters
     ----------
-            cat_df: dataframe
-                            The *.cat data in dataframe form.
-            lin_df: dataframe
-                            The *.lin data in dataframe form.
-            qn_tdict: dict
-                            The quantum number translation dict. Keys is a tuple consisting of the value for the upper and
-                            lower quantum number value, values are the corresponding values they should be mapped to.
-            qn: int
-                            The quantum number position that the qn_tdict should be applied to.
+    cat_df: dataframe
+        The *.cat data in dataframe form.
+    lin_df: dataframe
+        The *.lin data in dataframe form.
+    qn_tdict: dict
+        The quantum number translation dict. Keys is a tuple consisting of the value for the upper and
+        lower quantum number value, values are the corresponding values they should be mapped to.
+    qn: int
+        The quantum number position that the qn_tdict should be applied to.
 
     Returns
     -------
-            cat_df: dataframe
-                            The resulting *.cat dataframe, with duplicates being summed up and *.lin data being merged in.
-            lin_df: dataframe
-                            The resulting *.lin dataframe.
+    cat_df: dataframe
+        The resulting *.cat dataframe, with duplicates being summed up and *.lin data being merged in.
+    lin_df: dataframe
+        The resulting *.lin dataframe.
     """
     cat_df = cat_df.copy()
     lin_df = lin_df.copy()
@@ -1817,19 +1818,19 @@ def finalize(cat_df=pd.DataFrame(), lin_df=pd.DataFrame(), qn_tdict={}, qn=4):
 def get_dr_candidates(df1, df2, quanta=None):
     """Get candidates for double-resonance measurements.
 
-            Parameters
+    Parameters
     ----------
-            df1: dataframe
-                            The *.cat/*.lin data for the first source in dataframe form.
-            df2: dataframe
-                            The *.cat/*.lin data for the second source in dataframe form.
+    df1: dataframe
+        The *.cat/*.lin data for the first source in dataframe form.
+    df2: dataframe
+        The *.cat/*.lin data for the second source in dataframe form.
     quanta: int or None
             The number of used quanta. None means use global setting.
 
     Returns
     -------
-            dataframe
-                            Dataframe containing the double-resonance candidates.
+    dataframe
+        Dataframe containing the double-resonance candidates.
     """
 
     quanta = max(6, quanta or QUANTA)
