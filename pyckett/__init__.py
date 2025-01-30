@@ -337,41 +337,47 @@ def format_(value, formatspecifier):
         Value to be formatted.
     formatspecifier: str
         Format to be used.
-
+    
     Returns
     -------
     str
         Formatted string of value.
     """
-    is_integer = formatspecifier.endswith("d")
+    
+    if formatspecifier.endswith('p'):
+        totallength = int(formatspecifier[:-1])
 
-    if is_integer:
-        totallength, decimals = int(formatspecifier[:-1]), 0
-    else:
-        tmp = formatspecifier[:-1].split(".")
-        totallength, decimals = map(int, tmp)
-
-    if is_integer:
         value = int(value)
+        sign = np.sign(value)
+        quotient, modulo = divmod(abs(value), 10**(totallength-1))
+        quotient *= np.sign(value)
+        
 
-    negative = value < 0
-    integerlength = totallength - negative - decimals - (decimals != 0)
+        print(f'{quotient=}, {modulo=}')
 
-    maxvalue = 10**integerlength
-    maxascii = maxvalue * 3.6
-
-    if abs(value) < maxvalue:
-        return f"{{:{formatspecifier}}}".format(value)
-
-    elif is_integer and abs(value) < maxascii:
-        firsttwodigits = value // 10 ** (int(np.log10(value)) - 1)
-        tmp = chr(55 + firsttwodigits)
-        return tmp + f"{{:{formatspecifier}}}".format(value)[2:]
-
+        if quotient >= 36 or quotient <= -27:
+            return('*' * totallength)
+        
+        if quotient == 0:
+            quotient = '-' if sign == -1 else ' '
+        elif quotient > 9:
+            quotient = chr(55 + quotient)
+        elif quotient < 0:
+            quotient = chr(96 - quotient)
+            
+        return(f'{quotient}{modulo}')
+    
     else:
-        return f"{{:{formatspecifier}}}".format(
-            (maxvalue - 0.1**decimals) * (-1) ** negative
-        )
+        if formatspecifier.endswith('d'):
+            totallength = int(formatspecifier[:-1])
+        else:
+            totallength = int(formatspecifier[:-1].split(".")[0])
+        tmp = f"{{:{formatspecifier}}}".format(value)
+        
+        if len(tmp) > totallength:
+            return('*' * totallength)
+        else:
+            return(tmp)
 
 
 def get_active_qns(df, quanta=None):
