@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyckett"
-version = "0.1.20"
+version = "0.1.21"
 authors = [
   { name="Luis Bonah", email="bonah@ph1.uni-koeln.de" },
 ]
@@ -32,3 +32,4 @@ pyckett_partitionfunction = "pyckett.clitools:partitionfunction"
 pyckett_auto = "pyckett.clitools:automaticfit"
 pyckett_fit = "pyckett.clitools:runfit"
 pyckett_cat = "pyckett.clitools:runpredictions"
+pyckett_pmix = "pyckett.clitools:pmix"

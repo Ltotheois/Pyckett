@@ -91,7 +91,18 @@ def separatefits():
         states_identifier = "_".join([f"{state:03.0f}" for state in states])
         filename = f"State_{states_identifier}"
 
-        tmp_lin = lin.query(f"{qnu} in @states and {qnl} in @states").copy()
+        # @Luis: This still needs some consideration in the future
+        ##########################################################################################
+        # tmp_lin = lin.query(f"{qnu} in @states and {qnl} in @states").copy()
+        ##########################################################################################
+        # tmp_lin = lin.query(f"({qnu} in @states and {qnl} in @states) or (error < 0 and ({qnu} in @states or {qnl} in @states))").copy()
+        tmp_lin = lin.query(
+            f"({qnu} in @states and {qnl} in @states) or (error < 0 and {qnu} in @states)"
+        ).copy()
+        for qn in (qnu, qnl):
+            states.extend(tmp_lin[qn].unique())
+        states = sorted(set(states))
+        ##########################################################################################
 
         filter_states = lambda x: (x[0] in states and x[1] in states) or (
             x[0] == ALL_STATES and x[1] == ALL_STATES
@@ -168,7 +179,8 @@ def separatefits():
         else:
             stats = {}
         stats["states"] = states
-        stats["total_lines"] = len(tmp_lin)
+        stats["total_transitions"] = len(tmp_lin)
+        stats["total_lines"] = len(tmp_lin["x"].unique())
 
         return stats
 
@@ -176,7 +188,9 @@ def separatefits():
         futures = {i: executor.submit(worker, i) for i in range(len(states_sets))}
         runs = [f.result() for f in futures.values()]
 
-    header = "States         |  RMS / kHz  |    WRMS    |  Rejected  | Total Lines"
+    header = (
+        "States         |  RMS / kHz  |    WRMS    |  Rejected  |  Lines  |  Trans  "
+    )
     print(header)
     print("-" * len(header))
     for results in sorted(runs, key=lambda x: x["states"][0]):
@@ -185,5 +199,5 @@ def separatefits():
             # print(f"States {states_identifier:15};   RMS {results['rms']*1000 :12.4f} kHz; Rejected lines {results['rejected_lines'] :7.0f} /{results['total_lines'] :7.0f}")
             wrms = float(results["wrms"])
             print(
-                f"{states_identifier:15}|{results['rms']*1000 :12.4f} |{wrms:11.4f} |{results['rejected_lines'] :11.0f} |{results['total_lines'] :12.0f}"
+                f"{states_identifier:15}|{results['rms']*1000 :12.4f} |{wrms:11.4f} |{results['rejected_lines'] :11.0f} |{results['total_lines'] :8.0f} |{results['total_transitions'] :8.0f} "
             )

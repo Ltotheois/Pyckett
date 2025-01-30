@@ -39,6 +39,11 @@ def omitparameters():
         action="store_true",
         help="Do not reset .par parametes NPAR, NLINE, THRESH",
     )
+    parser.add_argument(
+        "--sortwrms",
+        action="store_true",
+        help="Sort results by their WRMS values instead of their RMS value",
+    )
 
     args = parser.parse_args()
 
@@ -65,6 +70,7 @@ def omitparameters():
         "skipfixed": args.skipfixed,
         "skipinterstate": args.skipinterstate,
         "skiprotational": args.skiprotational,
+        "sort_by_wrms": args.sortwrms,
     }
 
     omitparameters_core(par, lin, **kwargs)
@@ -80,6 +86,7 @@ def omitparameters_core(
     skipinterstate=True,
     skiprotational=True,
     report=True,
+    sort_by_wrms=False,
 ):
     candidates = ["INITIAL"]
 
@@ -106,10 +113,10 @@ def omitparameters_core(
 
         candidates.append(id)
 
-    runs = pyckett.omit_parameter(par, lin, candidates)
+    runs = pyckett.omit_parameter(par, lin, candidates, sort_by_wrms=sort_by_wrms)
 
     if report:
-        header = "         ID    |    RMS [kHz] | RejLines |  Diverging "
+        header = "         ID    |    RMS [kHz] |   WRMS | RejLines |  Diverging "
         print(header)
         print("-" * len(header))
         for results in runs:
@@ -118,14 +125,15 @@ def omitparameters_core(
                     f"ID {results['id']:14} | FAILED! This parameter could be essential."
                 )
             else:
-                id, rms, rejected_lines, diverging = (
+                id, rms, wrms, rejected_lines, diverging = (
                     results["id"],
                     results["rms"] * 1000,
+                    results["wrms"],
                     results["stats"]["rejected_lines"],
                     results["stats"]["diverging"],
                 )
                 print(
-                    f"{id:14} | {rms:12.2f} | {rejected_lines:8.0f} | {diverging:10} "
+                    f"{id:14} | {rms:12.2f} | {wrms:6.2f} | {rejected_lines:8.0f} | {diverging:10} "
                 )
                 # print(f"ID {results['id']:8}; RMS of {results['rms']*1000 :10.2f} kHz; Rejected lines {results['stats']['rejected_lines']:8}; Diverging {results['stats']['diverging']:8};")
 

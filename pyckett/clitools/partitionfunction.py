@@ -84,22 +84,39 @@ def partitionfunction():
     if args.temperatures:
         Temperatures.extend(args.temperatures)
         Temperatures.sort(reverse=True)
-    
+
     egy_df = pyckett.egy_to_df(egyfilename)
-    calc_partition_function(egy_df, Temperatures, convergence_plot=args.convergence, print_output=True, use_pickett_factor=args.use_pickett_factor)
+    calc_partition_function(
+        egy_df,
+        Temperatures,
+        convergence_plot=args.convergence,
+        print_output=True,
+        use_pickett_factor=args.use_pickett_factor,
+    )
 
 
-def calc_partition_function(egy_df, temperatures, print_output=False, convergence_plot=False, use_pickett_factor=False):
+def calc_partition_function(
+    egy_df,
+    temperatures,
+    print_output=False,
+    convergence_plot=False,
+    use_pickett_factor=False,
+):
     Jmax = egy_df["qn1"].max()
     Kamax = egy_df["qn2"].max()
     Kcmax = egy_df["qn3"].max()
 
     tmp_factor = factor_pickett if use_pickett_factor else factor
 
-    partition_functions = {T: partitionfunction_at_temperature(egy_df, T, factor=tmp_factor) for T in temperatures}
+    partition_functions = {
+        T: partitionfunction_at_temperature(egy_df, T, factor=tmp_factor)
+        for T in temperatures
+    }
 
     if print_output:
-        print(f"Partition function with J_max = {Jmax}, Ka_max = {Kamax}, Kc_max = {Kcmax}")
+        print(
+            f"Partition function with J_max = {Jmax}, Ka_max = {Kamax}, Kc_max = {Kcmax}"
+        )
         for key, value in partition_functions.items():
             print(f"T = {key:6.2f}; Q = {value:12.4f}; log Q = {np.log10(value):7.4f}")
 
@@ -124,5 +141,5 @@ def calc_partition_function(egy_df, temperatures, print_output=False, convergenc
         plt.ylabel("$Q$")
         plt.legend()
         plt.show()
-    
-    return(partition_functions)
+
+    return partition_functions

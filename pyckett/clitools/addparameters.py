@@ -98,6 +98,11 @@ def addparameters():
         action="store_true",
         help="Overwrite the .par file with the best fit",
     )
+    parser.add_argument(
+        "--sortwrms",
+        action="store_true",
+        help="Sort results by their WRMS values instead of their RMS value",
+    )
 
     args = parser.parse_args()
 
@@ -139,6 +144,7 @@ def addparameters():
         "initialvalues": args.initialvalues,
         "parameters_to_test": args.paramids,
         "bestparfile": bestparfile,
+        "sort_by_wrms": args.sortwrms,
     }
 
     addparameters_core(par, lin, **kwargs)
@@ -166,6 +172,7 @@ def addparameters_core(
     bestparfile=None,
     parameters_to_test=None,
     report=True,
+    sort_by_wrms=False,
 ):
     if not initialvalues:
         initialvalues = [1e-37]
@@ -293,10 +300,13 @@ def addparameters_core(
     # Calculate initial stats
     init_stats = pyckett.add_parameter(par, lin, [[]], sort=False)[0]
     init_stats["id"] = ["INITIAL"]
-    results = pyckett.add_parameter(par, lin, candidates, sort=False)
+    results = pyckett.add_parameter(
+        par, lin, candidates, sort=True, sort_by_wrms=sort_by_wrms
+    )
+    sort_key = "wrms" if sort_by_wrms else "rms"
 
     # Test new candidate parameters
-    header = "         ID    |    RMS [kHz] | RejLines |  Diverging | Init Value | Final Value "
+    header = "         ID    |    RMS [kHz] |   WRMS | RejLines |  Diverging | Init Value | Final Value "
     prit(report, "")
     prit(report, header)
     prit(report, "-" * len(header))
@@ -304,7 +314,7 @@ def addparameters_core(
     best_stats = init_stats
     for i, stats in enumerate(results):
         if (
-            stats["rms"] < best_stats["rms"]
+            stats[sort_key] < best_stats[sort_key]
             and stats["stats"]["rejected_lines"]
             <= best_stats["stats"]["rejected_lines"]
             and stats["stats"]["diverging"] != "LAST"
@@ -313,6 +323,7 @@ def addparameters_core(
 
         id = stats["id"][0]
         rms = stats["rms"] * 1000
+        wrms = stats["stats"]["wrms"]
         initial = stats["params"][-1][1]
         final = stats["par"][-1][1]
         rejected_lines = stats["stats"]["rejected_lines"]
@@ -320,17 +331,17 @@ def addparameters_core(
 
         prit(
             report,
-            f"{id:14} | {rms:12.2f} | {rejected_lines:8.0f} | {diverging:10} | {initial:10.2e} | {final:10.2e} ",
+            f"{id:14} | {rms:12.2f} | {wrms:6.2f} | {rejected_lines:8.0f} | {diverging:10} | {initial:10.2e} | {final:10.2e} ",
         )
 
     # Final report
     prit(
         report,
-        f'\nInitial values were an RMS of {init_stats["rms"]*1000 :.2f} kHz, {init_stats["stats"]["rejected_lines"]} rejected lines, and diverging {init_stats["stats"]["diverging"]}.',
+        f'\nInitial values were an {sort_key.upper()} of {init_stats[sort_key]*1000 :.2f} kHz, {init_stats["stats"]["rejected_lines"]} rejected lines, and diverging {init_stats["stats"]["diverging"]}.',
     )
     prit(
         report,
-        f'\nBest run is parameter {best_stats["id"][0]} with a final parameter value of {best_stats["par"][-1][1]:.2e}, RMS of {best_stats["rms"]*1000 :.2f} kHz, {best_stats["stats"]["rejected_lines"]} rejected lines, and diverging {best_stats["stats"]["diverging"]}.',
+        f'\nBest run is parameter {best_stats["id"][0]} with a final parameter value of {best_stats["par"][-1][1]:.2e}, {sort_key.upper()} of {best_stats[sort_key]*1000 :.2f} kHz, {best_stats["stats"]["rejected_lines"]} rejected lines, and diverging {best_stats["stats"]["diverging"]}.',
     )
 
     if bestparfile is not None:

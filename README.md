@@ -40,6 +40,8 @@ Pyckett provides a set of command line utilities which perform common steps of a
 
 *pyckett_fit* and *pyckett_cat* are shortcuts to SPFIT and SPCAT, respectively.
 
+*pyckett_pmix* quickly prints the mixing coefficients of an \*.egy file to identify interaction regions.
+
 
 See the respective help functions (by adding *--help* after the command) to see their syntax.
 

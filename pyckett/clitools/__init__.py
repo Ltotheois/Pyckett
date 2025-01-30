@@ -5,3 +5,4 @@ from .omitparameters import *
 from .partitionfunction import *
 from .separatefits import *
 from .automaticfit import *
+from .pmix import *
