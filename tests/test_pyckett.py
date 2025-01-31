@@ -15,6 +15,7 @@ class TestFormatting(unittest.TestCase):
     self.assertEqual(pyckett.format_(12, '2p'), '12')
     self.assertEqual(pyckett.format_(-10, '2p'), 'a0')
     self.assertEqual(pyckett.format_(-270, '2p'), '**')
+    self.assertEqual(pyckett.format_(9, '3p'), '  9')
     self.assertEqual(pyckett.pickett_int('Z9'), 359)
     self.assertEqual(pyckett.pickett_int('**'), 99)
     self.assertEqual(pyckett.pickett_int('12'), 12)

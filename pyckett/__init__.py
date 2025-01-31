@@ -116,7 +116,7 @@ class pickett_int(np.int64):
             elif 65 <= init_char_ord <= 90:
                 return np.int64(str(ord(init_char) - 55) + value[1:])
             else:
-                raise ValueError(f'Could not convert \'{value}\' to integer.')
+                raise ValueError(f"Could not convert '{value}' to integer.")
 
         # Special case for ERHAM *.cat files
         # ERHAM writes ** for quantum numbers higher than 99
@@ -207,7 +207,7 @@ def lin_dtypes_from_quanta(n=6):
 
     n = max(6, n)
     dtype_dict = {
-        **{f"qn{ul}{i+1}": np.int16 for ul in ("u", "l") for i in range(n)},
+        **{f"qn{ul}{i+1}": pickett_int for ul in ("u", "l") for i in range(n)},
         "x": np.float64,
         "error": np.float64,
         "weight": np.float64,
@@ -243,7 +243,7 @@ def egy_dtypes_from_quanta(n=6):
         "pmix": np.float64,
         "we": np.int64,
         ":": str,
-        **{f"qn{i+1}": np.int16 for i in range(n)},
+        **{f"qn{i+1}": pickett_int for i in range(n)},
     }
     return dtype_dict
 
@@ -337,44 +337,45 @@ def format_(value, formatspecifier):
         Value to be formatted.
     formatspecifier: str
         Format to be used.
-    
+
     Returns
     -------
     str
         Formatted string of value.
     """
-    
-    if formatspecifier.endswith('p'):
+
+    if formatspecifier.endswith("p"):
         totallength = int(formatspecifier[:-1])
 
         value = int(value)
         sign = np.sign(value)
-        quotient, modulo = divmod(abs(value), 10**(totallength-1))
+        quotient, modulo = divmod(abs(value), 10 ** (totallength - 1))
         quotient *= sign
-        
+
         if quotient >= 36 or quotient <= -27:
-            return('*' * totallength)
-        
+            return "*" * totallength
+
         if quotient == 0:
-            quotient = '-' if sign == -1 else ' '
+            quotient = "-" if sign == -1 else " "
         elif quotient > 9:
             quotient = chr(55 + quotient)
         elif quotient < 0:
             quotient = chr(96 - quotient)
-            
-        return(f'{quotient}{modulo}')
-    
+
+        quotient = f"{{:{totallength-1}}}".format(quotient)
+        return f"{quotient}{modulo}"
+        
     else:
-        if formatspecifier.endswith('d'):
+        if formatspecifier.endswith("d"):
             totallength = int(formatspecifier[:-1])
         else:
             totallength = int(formatspecifier[:-1].split(".")[0])
         tmp = f"{{:{formatspecifier}}}".format(value)
-        
+
         if len(tmp) > totallength:
-            return('*' * totallength)
+            return "*" * totallength
         else:
-            return(tmp)
+            return tmp
 
 
 def get_active_qns(df, quanta=None):
@@ -651,7 +652,7 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None):
                     tmp[2] = 1
 
             tmp_line_content = [
-                np.int16(line[i:j]) for i, j in zip(widths[:-1], widths[1:])
+                pickett_int(line[i:j]) for i, j in zip(widths[:-1], widths[1:])
             ] + tmp
             data.append(tmp_line_content)
 
