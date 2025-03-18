@@ -40,6 +40,9 @@ rather than using an actual 0.
 
 """
 
+WN_TO_MHZ = 299792458e-4
+"""float: Conversion factor from wavenumbers to MHz."""
+
 SPFIT_PATH = os.environ.get("PYCKETT_SPFIT_PATH")
 """str or None: Path to SPFIT program."""
 
@@ -594,7 +597,7 @@ def cat_to_df(fname, sort=True, quanta=None):
     return data
 
 
-def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None):
+def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None, convert_to_MHz=False):
     """Convert *.lin file to dataframe.
 
     Parameters
@@ -607,6 +610,8 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None):
         If all zero columns should be interpreted as inactive columns.
     quanta: int or None
         The number of used quanta. None means use global setting.
+    convert_to_MHz: bool
+        If values in wavenumbers should be converted to MHz.
 
     Returns
     -------
@@ -687,6 +692,11 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None):
         f"qn{ul}{i+1}" for ul in ("u", "l") for i in range(noq, quanta)
     ]
     data.columns = columns_qn + list(data.columns[2 * quanta :])
+
+    if convert_to_MHz:
+        mask = (data['error'] < 0)
+        data.loc[mask, 'error'] *= -WN_TO_MHZ
+        data.loc[mask, 'x'] *= WN_TO_MHZ
 
     if sort:
         # Sort by x and by error to keep blends together
