@@ -634,7 +634,13 @@ def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None, convert_to_M
             if not line.strip() or line.startswith(("#", "/", "\\")):
                 continue
 
-            tmp = line[chars_for_qns:].split(maxsplit=3)
+            tmp = line[chars_for_qns:]
+            if '/' in tmp:
+                tmp, comment = tmp.split('/', maxsplit=1)
+                tmp = tmp.split(maxsplit=2) + [comment]
+            else:
+                tmp = tmp.split(maxsplit=3)
+
             tmp[0] = dtypes["x"](tmp[0])
             tmp[1] = dtypes["error"](tmp[1])
 
