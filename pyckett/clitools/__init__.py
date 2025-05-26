@@ -6,3 +6,5 @@ from .partitionfunction import *
 from .separatefits import *
 from .automaticfit import *
 from .pmix import *
+from .report import *
+from .duplicates import *

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyckett"
-version = "0.1.23"
+version = "0.1.24"
 authors = [
   { name="Luis Bonah", email="bonah@ph1.uni-koeln.de" },
 ]
@@ -33,3 +33,5 @@ pyckett_auto = "pyckett.clitools:automaticfit"
 pyckett_fit = "pyckett.clitools:runfit"
 pyckett_cat = "pyckett.clitools:runpredictions"
 pyckett_pmix = "pyckett.clitools:pmix"
+pyckett_report = "pyckett.clitools:report"
+pyckett_duplicates = "pyckett.clitools:duplicates"

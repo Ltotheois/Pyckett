@@ -42,6 +42,10 @@ Pyckett provides a set of command line utilities which perform common steps of a
 
 *pyckett_pmix* quickly prints the mixing coefficients of an \*.egy file to identify interaction regions.
 
+*pyckett_report* gives a summary of your \*.lin (and \*.cat) file.
+
+*pyckett_duplicates* removes any duplicated entries from your \*.lin file.
+
 
 See the respective help functions (by adding *--help* after the command) to see their syntax.
 

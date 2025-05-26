@@ -1916,6 +1916,121 @@ def get_dr_candidates(df1, df2, quanta=None):
     return results
 
 
+def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
+    results = {}
+    report = []
+
+    if not len(lin_df):
+        return('Your *.lin file is empty.', results)
+
+    if noq is None:
+        qnu_labels = [f"qnu{i+1}" for i in range(QUANTA)]
+        noq = len(qnu_labels)
+        for i, qnu_label in enumerate(qnu_labels):
+            unique_values = lin_df[qnu_label].unique()
+            if len(unique_values) == 1 and unique_values[0] == SENTINEL:
+                noq = i
+                break
+    
+    qns_visible = [f"qn{ul}{n+1}" for ul in ("u", "l") for n in range(noq)]
+
+    results["not"] = len(lin_df)
+    results["nol"] = lin_df["x"].nunique()
+    results["non"] = len(lin_df[lin_df["weight"] == 0])
+    results["nod"] = sum(lin_df.duplicated(subset=qns_visible))
+
+    report.append((f"Transitions:", results["not"]))
+    report.append((f"Lines:", results["nol"]))
+    report.append((f"Unweighted Transitions:", results["non"]))
+    report.append((f"Duplicates:", results["nod"]))
+    report.append(("", ""))
+
+    results[f"x_min"] = lin_df["x"].min()
+    results[f"x_max"] = lin_df["x"].max()
+    report.append((f"Frequency min:", results["x_min"]))
+    report.append((f"Frequency max:", results["x_max"]))
+
+    for i in range(noq):
+        for ul in ("u", "l"):
+            tag = f"qn{ul}{i+1}"
+            results[f"{tag}_min"] = lin_df[tag].min()
+            results[f"{tag}_max"] = lin_df[tag].max()
+            report.append((f"{tag} min:", results[f"{tag}_min"]))
+            report.append((f"{tag} max:", results[f"{tag}_max"]))
+
+    if cat_df is not None:
+        results["nocd"] = sum(cat_df.duplicated(subset=qns_visible))
+        if results["nocd"]:
+            cat_df = cat_df.drop_duplicates(qns_visible, keep="first")
+
+        df = pd.merge(lin_df, cat_df, how="inner", on=qns_visible)
+        df.rename(
+            columns={
+                "x_x": "x_lin",
+                "x_y": "x_cat",
+                "error_x": "error_lin",
+                "error_y": "error_cat",
+                "filename_x": "filename_lin",
+                "filename_y": "filename_cat",
+            },
+            inplace=True,
+        )
+        df.reset_index(drop=True, inplace=True)
+
+        if blends:
+            mask = df["weight"] != 0
+            df_view = df[mask]
+            tmp_dict = (
+                df_view.groupby(df_view.x_lin)
+                .apply(lambda x: np.average(x.x_cat, weights=x.weight))
+                .to_dict()
+            )
+            df["x_cat"] = df["x_lin"].map(lambda x: tmp_dict.get(x, x))
+
+        df["diff"] = abs(df["x_cat"] - df["x_lin"])
+        df["wdiff"] = abs(df["x_cat"] - df["x_lin"]) / abs(df["error_lin"])
+
+        results["nom"] = len(df)
+        results["max_deviation"] = df["diff"].max()
+        results["max_wdeviation"] = df["wdiff"].max()
+
+        report.append(("", ""))
+        report.append(("Assignments with matching predict.:", results["nom"]))
+        report.append(
+            ("Assignments w/o  matching predict.:", results["not"] - results["nom"])
+        )
+        report.append(("Highest absolute deviation:", results["max_deviation"]))
+        report.append(("Highest relative deviation:", results["max_wdeviation"]))
+
+        results["rms"] = np.sqrt((df["diff"] ** 2).mean())
+        results["wrms"] = np.sqrt((df["wdiff"] ** 2).mean())
+
+        report.append(("", ""))
+        report.append(("RMS:", results["rms"]))
+        report.append(("WRMS:", results["wrms"]))
+
+    report = [
+        f"{title: <36}{value:16.4f}" if title else "" for title, value in report
+    ]
+
+    if cat_df is not None:
+        if results["nocd"]:
+            report.append(
+                f"\nWARNING: {results['nocd']} duplicates were found in your predictions. Each first occurence was kept."
+            )
+        if results["not"] != results["nom"]:
+            report.append(
+                f"\nWARNING: {results['not']-results['nom']} assignments have no matching prediction. This affects i.a. the RMS and WRMS."
+            )
+        if any(df["error_lin"] == 0):
+            report.append(
+                f"\nWARNING: Some errors (uncertainties) of your assignments are zero. This leads to infinity values for the relative deviation and the WRMS. Consider using 'error != 0' in the query field."
+            )
+
+    report = "\n".join(report)
+    return(report, results)
+
+
 # Constants for adding the correct parameters to fits
 INITIAL_PARAMS_ROTATION = {100, 200, 300}
 
