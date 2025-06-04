@@ -2009,6 +2009,32 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
         report.append(("RMS:", results["rms"]))
         report.append(("WRMS:", results["wrms"]))
 
+    # List number of transitions for transition types
+    delta_labels = []
+    for i in range(noq):
+        label = f'Δqn{i+1}'
+        lin_df[label] = lin_df[f'qnu{i+1}'] -  lin_df[f'qnl{i+1}']
+        delta_labels.append(label)
+    delta_df = lin_df.groupby(delta_labels).count()['x'].reset_index()
+    table_string = ['\n\nNumber of transitions by transition type:\n']
+    all_labels = [f'{label:>6}' for label in delta_labels] + ['Transitions']
+    table_header = '| ' + ' | '.join(all_labels) + ' |'
+    table_string.append(table_header)
+    all_seps = ['-' * 6 for _ in range(noq)] + ['-' * 11]
+    table_sep = '| ' + ' | '.join(all_seps) + ' |'
+    table_string.append(table_sep)
+
+    for i, row in delta_df.iterrows():
+        row_string = []
+        for label in delta_labels:
+            row_string.append(f'{row[label]:6d}')
+        n_lines = row['x']
+        row_string.append(f'{n_lines:11d}')
+
+        row_string = '| ' + ' | '.join(row_string)+ ' |'
+        table_string.append(row_string)
+    table_string.append('')
+
     report = [
         f"{title: <36}{value:16.4f}" if title else "" for title, value in report
     ]
@@ -2027,6 +2053,7 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
                 f"\nWARNING: Some errors (uncertainties) of your assignments are zero. This leads to infinity values for the relative deviation and the WRMS. Consider using 'error != 0' in the query field."
             )
 
+    report.extend(table_string)
     report = "\n".join(report)
     return(report, results)
 
