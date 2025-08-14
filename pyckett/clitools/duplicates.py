@@ -19,18 +19,20 @@ def duplicates():
         help="Which values to keep ('first' or 'last')",
         default='last',
     )
+    parser.add_argument("--sort", action='store_true')
 
     args = parser.parse_args()
 
 
     linfname = args.linfile
     keep = args.keep
+    sort = args.sort
 
     try:
-        lin = pyckett.lin_to_df(linfname, sort=False)
+        lin = pyckett.lin_to_df(linfname, sort=sort)
     except FileNotFoundError:
         linfname = str(linfname) + '.lin'
-        lin = pyckett.lin_to_df(linfname, sort=False)
+        lin = pyckett.lin_to_df(linfname, sort=sort)
     
     if '.lin' in linfname:
         duplicatesfname = linfname.replace('.lin', '_duplicates.lin')
