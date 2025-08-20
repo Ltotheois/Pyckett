@@ -552,7 +552,7 @@ def format_param_id(dict_, vib_digits):
 
 
 # Format functions
-def cat_to_df(fname, sort=True, quanta=None):
+def cat_to_df(fname, sort=False, quanta=None):
     """Convert *.cat file to dataframe.
 
     Parameters
@@ -597,7 +597,7 @@ def cat_to_df(fname, sort=True, quanta=None):
     return data
 
 
-def lin_to_df(fname, sort=True, zeroes_as_empty=False, quanta=None, convert_to_MHz=False):
+def lin_to_df(fname, sort=False, zeroes_as_empty=False, quanta=None, convert_to_MHz=False):
     """Convert *.lin file to dataframe.
 
     Parameters
@@ -805,7 +805,7 @@ def df_to_lin(df, quanta=None):
     return "\n".join(lines)
 
 
-def egy_to_df(fname, sort=True, quanta=None):
+def egy_to_df(fname, sort=False, quanta=None):
     """Convert *.egy file to dataframe.
 
     Parameters
@@ -1206,7 +1206,7 @@ def dict_to_int(dict_):
     return output
 
 
-def erhamlines_to_df(fname, sort=True):
+def erhamlines_to_df(fname, sort=False):
     """Convert ERHAM line data to dataframe.
 
     Parameters

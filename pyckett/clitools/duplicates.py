@@ -29,10 +29,10 @@ def duplicates():
     sort = args.sort
 
     try:
-        lin = pyckett.lin_to_df(linfname, sort=sort)
+        lin = pyckett.lin_to_df(linfname, sort=False)
     except FileNotFoundError:
         linfname = str(linfname) + '.lin'
-        lin = pyckett.lin_to_df(linfname, sort=sort)
+        lin = pyckett.lin_to_df(linfname, sort=False)
     
     if '.lin' in linfname:
         duplicatesfname = linfname.replace('.lin', '_duplicates.lin')
@@ -43,12 +43,17 @@ def duplicates():
     qn_labels = [f'qn{ul}{i+1}' for ul in 'ul' for i in range(pyckett.QUANTA)]
     duplicates = lin[lin.duplicated(subset=qn_labels, keep=keep)]
     n_duplicates = len(duplicates)
+    non_duplicates = lin.drop_duplicates(subset=qn_labels, keep=keep)
+
+    if sort:
+        non_duplicates = non_duplicates.sort_values(["x", "error"])
+        duplicates = duplicates.sort_values(["x", "error"])
 
     with open(duplicatesfname, 'w+') as file:
         file.write(pyckett.df_to_lin(duplicates))
     
     with open(linfname, 'w+') as file:
-        file.write(pyckett.df_to_lin(lin.drop_duplicates(subset=qn_labels, keep=keep)))
+        file.write(pyckett.df_to_lin(non_duplicates))
 
 
     print(f'Removed {n_duplicates} duplicates from your *.lin file.')
