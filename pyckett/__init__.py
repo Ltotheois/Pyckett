@@ -756,7 +756,7 @@ def df_to_cat(df, quanta=None):
     return "\n".join(lines)
 
 
-def df_to_lin(df, quanta=None):
+def df_to_lin(df, quanta=None, custom_freq_format=None):
     """Convert dataframe to *.lin format.
 
     Parameters
@@ -788,11 +788,11 @@ def df_to_lin(df, quanta=None):
         qnsstring = qnsstring + padstring
         comment = row["comment"].strip() if row["comment"] else ""
 
-        freq = (
-            format_(row["x"], "15.4f")
-            if row["error"] >= 0
-            else format_(row["x"], "15.10f")
-        )
+        freq_format = "15.4f" if row["error"] >= 0 else "15.10f"
+        if custom_freq_format:
+            freq_format = custom_freq_format
+        freq = f"{{:{freq_format}}}".format(row["x"])
+
         error = (
             format_(row["error"], "8.4f")
             if abs(row["error"]) >= 1e-3
