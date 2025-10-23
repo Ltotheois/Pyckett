@@ -42,7 +42,7 @@ factor_pickett = 1.43878
 
 
 def partitionfunction_at_temperature(egy_df, T, factor=factor):
-    egy_df["tmp"] = (2 * egy_df["qn1"] + 1) * np.exp(-egy_df["egy"] * factor / T)
+    egy_df["tmp"] = egy_df["we"] * np.exp(-egy_df["egy"] * factor / T)
     return egy_df["tmp"].sum()
 
 
@@ -115,10 +115,15 @@ def calc_partition_function(
 
     if print_output:
         print(
-            f"Partition function with J_max = {Jmax}, Ka_max = {Kamax}, Kc_max = {Kcmax}"
+            f"Partition function for J_max = {Jmax}, Ka_max = {Kamax}, Kc_max = {Kcmax}\n"
         )
+        
+        print("| Temp [K] |    Q(SPIN-ROT)  | log Q(SPIN-ROT) |")
+        print("| -------- | --------------- | --------------- |")
+
         for key, value in partition_functions.items():
-            print(f"T = {key:6.2f}; Q = {value:12.4f}; log Q = {np.log10(value):7.4f}")
+            print(f"| {key:8.2f} | {value:15.4f} | {np.log10(value):15.4f} |")
+
 
     if convergence_plot:
         import matplotlib.pyplot as plt
