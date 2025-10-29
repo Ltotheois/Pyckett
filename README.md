@@ -34,7 +34,9 @@ Pyckett provides a set of command line utilities which perform common steps of a
 
 *pyckett_uncertainties* evaluates the uncertainties of the parameters.
 
-*pyckett_partitionfunction* calculates the partition function for different temperatures.
+*pyckett_partitionfunction* or *pyckett_qrot* calculates the rotational partition function for different temperatures.
+
+*pyckett_vibpartitionfunction* or *pyckett_qvib* calculates the vibrational partition function for different temperatures.
 
 *pyckett_auto* automatically builds up the Hamiltonian step by step.
 

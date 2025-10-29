@@ -151,10 +151,10 @@ def separatefits():
                 state["NVIB"] = translation_dict[state["NVIB"]]
 
         tmp_par["PARAMS"] = tmp_params
-		# @Luis: Check here if we can summarize parameters
-		# - for each unique parameter check if there are
-			# - same parameter again
-			# - corresponding global parameter
+        # @Luis: Check here if we can summarize parameters
+        # - for each unique parameter check if there are
+        # - same parameter again
+        # - corresponding global parameter
 
         params_are_global = []
         for param in tmp_par["PARAMS"]:

@@ -10,17 +10,21 @@ import numpy as np
 
 
 class TestFormatting(unittest.TestCase):
-    self.assertEqual(pyckett.format_(359, '2p'), 'Z9')
-    self.assertEqual(pyckett.format_(360, '2p'), '**')
-    self.assertEqual(pyckett.format_(12, '2p'), '12')
-    self.assertEqual(pyckett.format_(-10, '2p'), 'a0')
-    self.assertEqual(pyckett.format_(-270, '2p'), '**')
-    self.assertEqual(pyckett.format_(9, '3p'), '  9')
-    self.assertEqual(pyckett.pickett_int('Z9'), 359)
-    self.assertEqual(pyckett.pickett_int('**'), 99)
-    self.assertEqual(pyckett.pickett_int('12'), 12)
-    self.assertEqual(pyckett.pickett_int('a0'), -10)
-    self.assertEqual(pyckett.pickett_int('**'), 99)
+    def test_formats(self):
+        self.assertEqual(pyckett.format_(359, "2p"), "Z9")
+        self.assertEqual(pyckett.format_(360, "2p"), "**")
+        self.assertEqual(pyckett.format_(12, "2p"), "12")
+        self.assertEqual(pyckett.format_(-10, "2p"), "a0")
+        self.assertEqual(pyckett.format_(-270, "2p"), "**")
+        self.assertEqual(pyckett.format_(9, "3p"), "  9")
+        self.assertEqual(pyckett.format_(21, "3p"), " 21")
+        self.assertEqual(pyckett.format_(-1, "3p"), " -1")
+        self.assertEqual(pyckett.pickett_int("Z9"), 359)
+        self.assertEqual(pyckett.pickett_int("**"), 99)
+        self.assertEqual(pyckett.pickett_int("12"), 12)
+        self.assertEqual(pyckett.pickett_int("a0"), -10)
+        self.assertEqual(pyckett.pickett_int("**"), 99)
+
 
 class TestLabels(unittest.TestCase):
     def test_QNLABELS(self):
@@ -43,11 +47,11 @@ class TestCatFormat(unittest.TestCase):
                 "x": np.float64,
                 "error": np.float64,
                 "y": np.float64,
-                "degfreed": pyckett.pickett_int,
+                "degfreed": np.int8,
                 "elower": np.float64,
                 "usd": pyckett.pickett_int,
-                "tag": pyckett.pickett_int,
-                "qnfmt": pyckett.pickett_int,
+                "tag": np.int32,
+                "qnfmt": np.int16,
                 **{
                     f"qn{ul}{i+1}": pyckett.pickett_int
                     for ul in ("u", "l")
@@ -62,11 +66,11 @@ class TestCatFormat(unittest.TestCase):
                 "x": np.float64,
                 "error": np.float64,
                 "y": np.float64,
-                "degfreed": pyckett.pickett_int,
+                "degfreed": np.int8,
                 "elower": np.float64,
                 "usd": pyckett.pickett_int,
-                "tag": pyckett.pickett_int,
-                "qnfmt": pyckett.pickett_int,
+                "tag": np.int32,
+                "qnfmt": np.int16,
                 **{
                     f"qn{ul}{i+1}": pyckett.pickett_int
                     for ul in ("u", "l")
@@ -81,11 +85,11 @@ class TestCatFormat(unittest.TestCase):
                 "x": np.float64,
                 "error": np.float64,
                 "y": np.float64,
-                "degfreed": pyckett.pickett_int,
+                "degfreed": np.int8,
                 "elower": np.float64,
                 "usd": pyckett.pickett_int,
-                "tag": pyckett.pickett_int,
-                "qnfmt": pyckett.pickett_int,
+                "tag": np.int32,
+                "qnfmt": np.int16,
                 **{
                     f"qn{ul}{i+1}": pyckett.pickett_int
                     for ul in ("u", "l")
@@ -301,7 +305,7 @@ class TestFileFormats(unittest.TestCase):
     def test_mecn(self):
         lin = pyckett.lin_to_df("tests/resources/MeCN.lin", sort=False)
         par = pyckett.parvar_to_dict("tests/resources/MeCN.par")
-        int = pyckett.int_to_dict("tests/resources/MeCN.int")
+        int_ = pyckett.int_to_dict("tests/resources/MeCN.int")
 
         active_qns = {
             "qnu1": True,
@@ -331,7 +335,7 @@ class TestFileFormats(unittest.TestCase):
         rms = 0.018262
         self.assertTrue(np.isclose(parsed_result["rms"], rms, rtol=1e-3))
 
-        wrms = 0.89593
+        wrms = 0.89946
         self.assertTrue(np.isclose(float(parsed_result["wrms"]), wrms, rtol=1e-3))
 
         rejected_lines = 0
@@ -341,7 +345,7 @@ class TestFileFormats(unittest.TestCase):
         self.assertEqual(parsed_result["diverging"], diverging)
 
         var = results["var"]
-        results = pyckett.run_spcat_v(var, int)
+        results = pyckett.run_spcat_v(var, int_)
 
         cat = results["cat"]
         egy = results["egy"]
@@ -364,7 +368,7 @@ class TestFileFormats(unittest.TestCase):
     def test_CH2O(self):
         lin = pyckett.lin_to_df("tests/resources/ch2o.lin", sort=False)
         par = pyckett.parvar_to_dict("tests/resources/ch2o.par")
-        int = pyckett.int_to_dict("tests/resources/ch2o.int")
+        int_ = pyckett.int_to_dict("tests/resources/ch2o.int")
 
         active_qns = {
             "qnu1": True,
@@ -404,7 +408,7 @@ class TestFileFormats(unittest.TestCase):
         self.assertEqual(parsed_result["diverging"], diverging)
 
         var = results["var"]
-        results = pyckett.run_spcat_v(var, int)
+        results = pyckett.run_spcat_v(var, int_)
 
         cat = results["cat"]
         egy = results["egy"]
@@ -430,13 +434,13 @@ class TestFileFormats(unittest.TestCase):
 
             lin = pyckett.lin_to_df("tests/resources/ch2o.lin", sort=False)
             par = pyckett.parvar_to_dict("tests/resources/ch2o.par")
-            int = pyckett.int_to_dict("tests/resources/ch2o.int")
+            int_ = pyckett.int_to_dict("tests/resources/ch2o.int")
 
             par["SPIND"] = 3333
             par["NLINE"] = -abs(par["NLINE"])
-            int["FEND"] = 5
+            int_["FEND"] = 5
 
-            results = pyckett.run_spcat_v(par, int)
+            results = pyckett.run_spcat_v(par, int_)
 
             cat = results["cat"]
             lin = cat.query("y > 1E-6").copy()
@@ -456,16 +460,16 @@ class TestFileFormats(unittest.TestCase):
             results = pyckett.run_spfit_v(par, lin)
             parsed_result = pyckett.parse_fit_result(results["msg"], results["var"])
 
-            rms = 0.061034
+            rms = 0.030545
             self.assertTrue(np.isclose(parsed_result["rms"], rms, rtol=1e-3))
 
-            wrms = 0.59024
+            wrms = 0.6109
             self.assertTrue(np.isclose(float(parsed_result["wrms"]), wrms, rtol=1e-3))
 
             rejected_lines = 0
             self.assertEqual(parsed_result["rejected_lines"], rejected_lines)
 
-            diverging = "LAST"
+            diverging = "NEVER"
             self.assertEqual(parsed_result["diverging"], diverging)
 
         except Exception as E:

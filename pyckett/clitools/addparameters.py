@@ -335,12 +335,20 @@ def addparameters_core(
         )
 
     # Final report
-    init_value = f'{init_stats[sort_key]*1000 :.2f} kHz' if sort_key == 'rms' else f'{init_stats[sort_key]:.2f}'
+    init_value = (
+        f"{init_stats[sort_key]*1000 :.2f} kHz"
+        if sort_key == "rms"
+        else f"{init_stats[sort_key]:.2f}"
+    )
     prit(
         report,
         f'\nInitial values were an {sort_key.upper()} of {init_value}, {init_stats["stats"]["rejected_lines"]} rejected lines, and diverging {init_stats["stats"]["diverging"]}.',
     )
-    best_value = f'{best_stats[sort_key]*1000 :.2f} kHz' if sort_key == 'rms' else f'{best_stats[sort_key]:.2f}'
+    best_value = (
+        f"{best_stats[sort_key]*1000 :.2f} kHz"
+        if sort_key == "rms"
+        else f"{best_stats[sort_key]:.2f}"
+    )
     prit(
         report,
         f'\nBest run is parameter {best_stats["id"][0]} with a final parameter value of {best_stats["par"][-1][1]:.2e}, {sort_key.upper()} of {best_value}, {best_stats["stats"]["rejected_lines"]} rejected lines, and diverging {best_stats["stats"]["diverging"]}.',

@@ -8,6 +8,7 @@ import os
 import argparse
 import pyckett
 
+
 def report():
     parser = argparse.ArgumentParser(prog="Summarize an analysis")
 
@@ -20,7 +21,7 @@ def report():
         "--noblends",
         action="store_false",
         default=None,
-        dest='blends',
+        dest="blends",
         help="Skip blend treatment",
     )
 
@@ -32,7 +33,6 @@ def report():
     )
 
     args = parser.parse_args()
-
 
     linfname = args.linfile
     base, ext = os.path.splitext(linfname)

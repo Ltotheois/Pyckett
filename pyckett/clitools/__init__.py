@@ -8,3 +8,4 @@ from .automaticfit import *
 from .pmix import *
 from .report import *
 from .duplicates import *
+from .vibpartitionfunction import *

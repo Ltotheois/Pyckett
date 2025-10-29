@@ -359,15 +359,15 @@ def format_(value, formatspecifier):
             return "*" * totallength
 
         if quotient == 0:
-            quotient = "-" if sign == -1 else " "
+            return f"{sign*modulo:{totallength}}"
         elif quotient > 9:
             quotient = chr(55 + quotient)
         elif quotient < 0:
             quotient = chr(96 - quotient)
 
-        quotient = f"{{:{totallength-1}}}".format(quotient)
+        modulo = f"{{:0{totallength-1}}}".format(modulo)
         return f"{quotient}{modulo}"
-        
+
     else:
         if formatspecifier.endswith("d"):
             totallength = int(formatspecifier[:-1])
@@ -597,7 +597,9 @@ def cat_to_df(fname, sort=False, quanta=None):
     return data
 
 
-def lin_to_df(fname, sort=False, zeroes_as_empty=False, quanta=None, convert_to_MHz=False):
+def lin_to_df(
+    fname, sort=False, zeroes_as_empty=False, quanta=None, convert_to_MHz=False
+):
     """Convert *.lin file to dataframe.
 
     Parameters
@@ -635,8 +637,8 @@ def lin_to_df(fname, sort=False, zeroes_as_empty=False, quanta=None, convert_to_
                 continue
 
             tmp = line[chars_for_qns:]
-            if '/' in tmp:
-                tmp, comment = tmp.split('/', maxsplit=1)
+            if "/" in tmp:
+                tmp, comment = tmp.split("/", maxsplit=1)
                 tmp = tmp.split(maxsplit=2) + [comment]
             else:
                 tmp = tmp.split(maxsplit=3)
@@ -700,9 +702,9 @@ def lin_to_df(fname, sort=False, zeroes_as_empty=False, quanta=None, convert_to_
     data.columns = columns_qn + list(data.columns[2 * quanta :])
 
     if convert_to_MHz:
-        mask = (data['error'] < 0)
-        data.loc[mask, 'error'] *= -WN_TO_MHZ
-        data.loc[mask, 'x'] *= WN_TO_MHZ
+        mask = data["error"] < 0
+        data.loc[mask, "error"] *= -WN_TO_MHZ
+        data.loc[mask, "x"] *= WN_TO_MHZ
 
     if sort:
         # Sort by x and by error to keep blends together
@@ -1921,7 +1923,7 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
     report = []
 
     if not len(lin_df):
-        return('Your *.lin file is empty.', results)
+        return ("Your *.lin file is empty.", results)
 
     if noq is None:
         qnu_labels = [f"qnu{i+1}" for i in range(QUANTA)]
@@ -1931,7 +1933,7 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
             if len(unique_values) == 1 and unique_values[0] == SENTINEL:
                 noq = i
                 break
-    
+
     qns_visible = [f"qn{ul}{n+1}" for ul in ("u", "l") for n in range(noq)]
 
     results["not"] = len(lin_df)
@@ -2012,32 +2014,30 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
     # List number of transitions for transition types
     delta_labels = []
     for i in range(noq):
-        label = f'Δqn{i+1}'
-        lin_df[label] = lin_df[f'qnu{i+1}'] -  lin_df[f'qnl{i+1}']
+        label = f"Δqn{i+1}"
+        lin_df[label] = lin_df[f"qnu{i+1}"] - lin_df[f"qnl{i+1}"]
         delta_labels.append(label)
-    delta_df = lin_df.groupby(delta_labels).count()['x'].reset_index()
-    table_string = ['\n\nNumber of transitions by transition type:\n']
-    all_labels = [f'{label:>6}' for label in delta_labels] + ['Transitions']
-    table_header = '| ' + ' | '.join(all_labels) + ' |'
+    delta_df = lin_df.groupby(delta_labels).count()["x"].reset_index()
+    table_string = ["\n\nNumber of transitions by transition type:\n"]
+    all_labels = [f"{label:>6}" for label in delta_labels] + ["Transitions"]
+    table_header = "| " + " | ".join(all_labels) + " |"
     table_string.append(table_header)
-    all_seps = ['-' * 6 for _ in range(noq)] + ['-' * 11]
-    table_sep = '| ' + ' | '.join(all_seps) + ' |'
+    all_seps = ["-" * 6 for _ in range(noq)] + ["-" * 11]
+    table_sep = "| " + " | ".join(all_seps) + " |"
     table_string.append(table_sep)
 
     for i, row in delta_df.iterrows():
         row_string = []
         for label in delta_labels:
-            row_string.append(f'{row[label]:6d}')
-        n_lines = row['x']
-        row_string.append(f'{n_lines:11d}')
+            row_string.append(f"{row[label]:6d}")
+        n_lines = row["x"]
+        row_string.append(f"{n_lines:11d}")
 
-        row_string = '| ' + ' | '.join(row_string)+ ' |'
+        row_string = "| " + " | ".join(row_string) + " |"
         table_string.append(row_string)
-    table_string.append('')
+    table_string.append("")
 
-    report = [
-        f"{title: <36}{value:16.4f}" if title else "" for title, value in report
-    ]
+    report = [f"{title: <36}{value:16.4f}" if title else "" for title, value in report]
 
     if cat_df is not None:
         if results["nocd"]:
@@ -2055,7 +2055,7 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
 
     report.extend(table_string)
     report = "\n".join(report)
-    return(report, results)
+    return (report, results)
 
 
 # Constants for adding the correct parameters to fits

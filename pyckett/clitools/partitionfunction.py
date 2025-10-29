@@ -117,13 +117,12 @@ def calc_partition_function(
         print(
             f"Partition function for J_max = {Jmax}, Ka_max = {Kamax}, Kc_max = {Kcmax}\n"
         )
-        
+
         print("| Temp [K] |    Q(SPIN-ROT)  | log Q(SPIN-ROT) |")
         print("| -------- | --------------- | --------------- |")
 
         for key, value in partition_functions.items():
             print(f"| {key:8.2f} | {value:15.4f} | {np.log10(value):15.4f} |")
-
 
     if convergence_plot:
         import matplotlib.pyplot as plt
