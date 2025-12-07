@@ -149,8 +149,8 @@ def automatic_base_adoption_omit(runs):
     best_stats = runs[0]
 
     if (
-        init_stats["rms"]
-        and best_stats["rms"] / init_stats["rms"] < 1.1
+        init_stats["mw_rms"]
+        and best_stats["mw_rms"] / init_stats["mw_rms"] < 1.1
         and best_stats["stats"]["rejected_lines"]
         <= init_stats["stats"]["rejected_lines"]
         and best_stats["stats"]["diverging"] != "LAST"
@@ -161,8 +161,8 @@ def automatic_base_adoption_omit(runs):
 
 def automatic_base_adoption_add(init_stats, best_stats, results):
     if (
-        init_stats["rms"]
-        and best_stats["rms"] / init_stats["rms"] < 0.9
+        init_stats["mw_rms"]
+        and best_stats["mw_rms"] / init_stats["mw_rms"] < 0.9
         and best_stats["stats"]["rejected_lines"]
         <= init_stats["stats"]["rejected_lines"]
         and best_stats["stats"]["diverging"] != "LAST"
@@ -251,17 +251,17 @@ def automaticfit_core(
 
         results = pyckett.run_spfit_v(par, lin_cur)
         stats = pyckett.parse_fit_result(results["msg"], results["var"])
-        rms = stats["rms"]
+        mw_rms = stats["mw_rms"]
         rl = stats["rejected_lines"]
 
-        prit(report, f"RMS is currently {rms} with {rl} rejected lines.")
+        prit(report, f"MW RMS is currently {mw_rms} with {rl} rejected lines.")
         prit(
             report,
         )
 
         log_data.append(
             {
-                "rms": float(rms),
+                "mw_rms": float(mw_rms),
                 "rejected_lines": int(rl),
                 "lin_qn_cur": int(lin_qn_cur),
                 "added": [],
@@ -311,10 +311,10 @@ def automaticfit_core(
     par.update(pyckett.PARUPDATE)
     results = pyckett.run_spfit_v(par, lin_cur)
     stats = pyckett.parse_fit_result(results["msg"], results["var"])
-    rms = stats["rms"]
+    mw_rms = stats["mw_rms"]
     rl = stats["rejected_lines"]
     log_data.append(
-        {"rms": float(rms), "rejected_lines": int(rl), "lin_qn_cur": int(lin_qn_cur)}
+        {"mw_rms": float(mw_rms), "rejected_lines": int(rl), "lin_qn_cur": int(lin_qn_cur)}
     )
 
     return (par, log_data)

@@ -460,19 +460,25 @@ def parse_fit_result(message, var_dict):
 
     results = {}
 
-    startindex = message.rfind("MICROWAVE RMS =") + len("MICROWAVE RMS =")
-    stopindex = message.find(" MHz", startindex)
-    rms = float(message[startindex:stopindex])
+    keywords = [
+        ("mw_avg", "MICROWAVE AVG =", " MHz"),
+        ("ir_avg", "IR AVG =", "\n"),
+        ("mw_rms", "MICROWAVE RMS =", " MHz"),
+        ("ir_rms", "IR RMS =", "\n"),
+        ("wrms", "RMS ERROR=", "\n"),
+    ]
 
-    results["rms"] = rms
+    for label, start_keyword, stop_keyword in keywords:
+        startindex = message.rfind(start_keyword) + len(start_keyword)
+        stopindex = message.find(stop_keyword, startindex)
 
-    startindex = message.rfind("RMS ERROR=") + len("RMS ERROR=")
-    stopindex = message.find("\n", startindex)
-    OLDWRMS, WRMS = message[startindex:stopindex].split()
-
-    # @Luis: Why did we keep this beforehand as a string value?
-    results["wrms_old"] = float(OLDWRMS)
-    results["wrms"] = float(WRMS)
+        if label == 'wrms':
+            OLDWRMS, WRMS = message[startindex:stopindex].split()
+            results["wrms_old"] = float(OLDWRMS)
+            results["wrms"] = float(WRMS)
+        else:
+            value = float(message[startindex:stopindex])
+            results[label] = value
 
     start_of_last_cycle = message.rfind("Finished Quantum")
 
@@ -1677,11 +1683,13 @@ def add_parameter(
         tmp_par_dict["PARAMS"] = tmp_par_dict["PARAMS"] + params
         results = run_spfit_v(tmp_par_dict, lin_df, spfit_path)
         stats = parse_fit_result(results["msg"], results["var"])
-        rms = stats["rms"]
+        mw_rms = stats["mw_rms"]
+        ir_rms = stats["ir_rms"]
         wrms = stats["wrms"]
         return {
             "id": ids,
-            "rms": rms,
+            "mw_rms": mw_rms,
+            "ir_rms": ir_rms,
             "wrms": wrms,
             "par": results["par"]["PARAMS"].copy(),
             "stats": stats,
@@ -1693,7 +1701,7 @@ def add_parameter(
         runs = [f.result() for f in futures.values()]
 
     if sort:
-        sort_key = "wrms" if sort_by_wrms else "rms"
+        sort_key = "wrms" if sort_by_wrms else "mw_rms"
         runs = sorted(runs, key=lambda x: x[sort_key])
     return runs
 
@@ -1730,12 +1738,14 @@ def omit_parameter(
             results = run_spfit_v(tmp_par_dict, lin_df, spfit_path)
             stats = parse_fit_result(results["msg"], results["var"])
         except subprocess.CalledProcessError:
-            stats = {"rms": None, "wrms": None}
-        rms = stats["rms"]
+            stats = {"rms": None, "wrms": None, "ir_rms": None}
+        mw_rms = stats["mw_rms"]
+        ir_rms = stats["ir_rms"]
         wrms = stats["wrms"]
         return {
             "id": param_id,
-            "rms": rms,
+            "mw_rms": mw_rms,
+            "ir_rms": ir_rms,
             "wrms": wrms,
             "par": tmp_par_dict["PARAMS"].copy(),
             "stats": stats,
@@ -1748,7 +1758,7 @@ def omit_parameter(
         runs = [f.result() for f in futures.values()]
 
     if sort:
-        sort_key = "wrms" if sort_by_wrms else "rms"
+        sort_key = "wrms" if sort_by_wrms else "mw_rms"
         failed_runs = [x for x in runs if x[sort_key] is None]
         normal_runs = [x for x in runs if x[sort_key] is not None]
         runs = (

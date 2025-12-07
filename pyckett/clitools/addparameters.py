@@ -303,10 +303,10 @@ def addparameters_core(
     results = pyckett.add_parameter(
         par, lin, candidates, sort=True, sort_by_wrms=sort_by_wrms
     )
-    sort_key = "wrms" if sort_by_wrms else "rms"
+    sort_key = "wrms" if sort_by_wrms else "mw_rms"
 
     # Test new candidate parameters
-    header = "         ID    |    RMS [kHz] |   WRMS | RejLines |  Diverging | Init Value | Final Value "
+    header = "         ID    | MW RMS [kHz] |   WRMS | RejLines |  Diverging | Init Value | Final Value "
     prit(report, "")
     prit(report, header)
     prit(report, "-" * len(header))
@@ -322,7 +322,7 @@ def addparameters_core(
             best_stats = stats
 
         id = stats["id"][0]
-        rms = stats["rms"] * 1000
+        mw_rms = stats["mw_rms"] * 1000
         wrms = stats["stats"]["wrms"]
         initial = stats["params"][-1][1]
         final = stats["par"][-1][1]
@@ -331,13 +331,13 @@ def addparameters_core(
 
         prit(
             report,
-            f"{id:14} | {rms:12.2f} | {wrms:6.2f} | {rejected_lines:8.0f} | {diverging:10} | {initial:10.2e} | {final:10.2e} ",
+            f"{id:14} | {mw_rms:12.2f} | {wrms:6.2f} | {rejected_lines:8.0f} | {diverging:10} | {initial:10.2e} | {final:10.2e} ",
         )
 
     # Final report
     init_value = (
         f"{init_stats[sort_key]*1000 :.2f} kHz"
-        if sort_key == "rms"
+        if sort_key == "mw_rms"
         else f"{init_stats[sort_key]:.2f}"
     )
     prit(
@@ -346,7 +346,7 @@ def addparameters_core(
     )
     best_value = (
         f"{best_stats[sort_key]*1000 :.2f} kHz"
-        if sort_key == "rms"
+        if sort_key == "mw_rms"
         else f"{best_stats[sort_key]:.2f}"
     )
     prit(

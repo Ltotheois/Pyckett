@@ -193,15 +193,14 @@ def separatefits():
         runs = [f.result() for f in futures.values()]
 
     header = (
-        "States         |  RMS / kHz  |    WRMS    |  Rejected  |  Lines  |  Trans  "
+        "States         | MW RMS / kHz|    WRMS    |  Rejected  |  Lines  |  Trans  "
     )
     print(header)
     print("-" * len(header))
     for results in sorted(runs, key=lambda x: x["states"][0]):
         states_identifier = "_".join([f"{state:03.0f}" for state in results["states"]])
-        if "rms" in results:
+        if "mw_rms" in results:
             # print(f"States {states_identifier:15};   RMS {results['rms']*1000 :12.4f} kHz; Rejected lines {results['rejected_lines'] :7.0f} /{results['total_lines'] :7.0f}")
-            wrms = float(results["wrms"])
             print(
-                f"{states_identifier:15}|{results['rms']*1000 :12.4f} |{wrms:11.4f} |{results['rejected_lines'] :11.0f} |{results['total_lines'] :8.0f} |{results['total_transitions'] :8.0f} "
+                f"{states_identifier:15}|{results['mw_rms']*1000 :12.4f} |{wrms:11.4f} |{results['rejected_lines'] :11.0f} |{results['total_lines'] :8.0f} |{results['total_transitions'] :8.0f} "
             )
