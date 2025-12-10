@@ -80,11 +80,15 @@ def uncertainties():
         output.append(
             (
                 rel_unc,
-                f"ID {id_:8}; REL UNC {rel_unc:10.4f};   VALUE {value: .2e};   ABS UNC {unc: .2e};   GLOB REL {rel_global:10.4f}",
+                f"{id_:13} |{rel_unc:10.4f} |{value:11.2e} |{unc:12.2e} |{rel_global:10.4f} ",
             )
         )
 
     if not args.unordered:
         output.sort(key=lambda x: x[0], reverse=True)
-
+    
+    header = ' Parameter ID | Rel. Unc. |  Parameter | Uncertainty | Param/Global  '
+    print()
+    print(header)
+    print('-' * len(header))
     print("\n".join([x[1] for x in output]))
