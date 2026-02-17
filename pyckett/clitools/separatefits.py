@@ -202,5 +202,5 @@ def separatefits():
         if "mw_rms" in results:
             # print(f"States {states_identifier:15};   RMS {results['rms']*1000 :12.4f} kHz; Rejected lines {results['rejected_lines'] :7.0f} /{results['total_lines'] :7.0f}")
             print(
-                f"{states_identifier:15}|{results['mw_rms']*1000 :12.4f} |{wrms:11.4f} |{results['rejected_lines'] :11.0f} |{results['total_lines'] :8.0f} |{results['total_transitions'] :8.0f} "
+                f"{states_identifier:15}|{results['mw_rms']*1000 :12.4f} |{results['wrms']:11.4f} |{results['rejected_lines'] :11.0f} |{results['total_lines'] :8.0f} |{results['total_transitions'] :8.0f} "
             )

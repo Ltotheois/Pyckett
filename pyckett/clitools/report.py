@@ -20,7 +20,7 @@ def report():
     parser.add_argument(
         "--noblends",
         action="store_false",
-        default=None,
+        default=True,
         dest="blends",
         help="Skip blend treatment",
     )
