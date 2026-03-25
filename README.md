@@ -1,6 +1,6 @@
 <h1 align="center">
 <img src="https://hera.ph1.uni-koeln.de/~bonah/resources/images/Pyckett.png" width="300">
-</h1><br>
+</h1>
 
 # Pyckett
 
