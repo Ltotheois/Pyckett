@@ -1738,7 +1738,7 @@ def omit_parameter(
             results = run_spfit_v(tmp_par_dict, lin_df, spfit_path)
             stats = parse_fit_result(results["msg"], results["var"])
         except subprocess.CalledProcessError:
-            stats = {"rms": None, "wrms": None, "ir_rms": None}
+            stats = {"mw_rms": None, "wrms": None, "ir_rms": None}
         mw_rms = stats["mw_rms"]
         ir_rms = stats["ir_rms"]
         wrms = stats["wrms"]
@@ -1999,8 +1999,8 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
             )
             df["x_cat"] = df["x_lin"].map(lambda x: tmp_dict.get(x, x))
 
-        df["diff"] = abs(df["x_cat"] - df["x_lin"])
-        df["wdiff"] = abs(df["x_cat"] - df["x_lin"]) / abs(df["error_lin"])
+        df["diff"] = abs(df["x_lin"] - df["x_cat"])
+        df["wdiff"] = abs(df["x_lin"] - df["x_cat"]) / abs(df["error_lin"])
 
         results["nom"] = len(df)
         results["max_deviation"] = df["diff"].max()
@@ -2016,10 +2016,12 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
 
         results["rms"] = np.sqrt((df["diff"] ** 2).mean())
         results["wrms"] = np.sqrt((df["wdiff"] ** 2).mean())
+        results["avg"] = np.mean(df["x_lin"] - df["x_cat"])
 
         report.append(("", ""))
         report.append(("RMS:", results["rms"]))
         report.append(("WRMS:", results["wrms"]))
+        report.append(("AVG:", results["avg"]))
 
     # List number of transitions for transition types
     delta_labels = []
