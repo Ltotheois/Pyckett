@@ -1,4 +1,6 @@
+<h1 align="center">
 <img src="https://hera.ph1.uni-koeln.de/~bonah/resources/images/Pyckett.png" width="300">
+</h1><br>
 
 Pyckett is a python wrapper around the SPFIT/SPCAT package (*H. M. Pickett, "The Fitting and Prediction of Vibration-Rotation Spectra with Spin Interactions," **J. Mol. Spectrosc. 148,** 371-377 (1991)*).
 
