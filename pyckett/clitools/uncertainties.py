@@ -86,9 +86,9 @@ def uncertainties():
 
     if not args.unordered:
         output.sort(key=lambda x: x[0], reverse=True)
-    
-    header = ' Parameter ID | Rel. Unc. |  Parameter | Uncertainty | Param/Global  '
+
+    header = " Parameter ID | Rel. Unc. |  Parameter | Uncertainty | Param/Global  "
     print()
     print(header)
-    print('-' * len(header))
+    print("-" * len(header))
     print("\n".join([x[1] for x in output]))

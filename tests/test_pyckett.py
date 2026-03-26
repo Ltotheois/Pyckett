@@ -333,7 +333,7 @@ class TestFileFormats(unittest.TestCase):
         parsed_result = pyckett.parse_fit_result(results["msg"], results["var"])
 
         rms = 0.018262
-        self.assertTrue(np.isclose(parsed_result["rms"], rms, rtol=1e-3))
+        self.assertTrue(np.isclose(parsed_result["mw_rms"], rms, rtol=1e-3))
 
         wrms = 0.89946
         self.assertTrue(np.isclose(float(parsed_result["wrms"]), wrms, rtol=1e-3))
@@ -396,7 +396,7 @@ class TestFileFormats(unittest.TestCase):
         parsed_result = pyckett.parse_fit_result(results["msg"], results["var"])
 
         rms = 0.199064
-        self.assertTrue(np.isclose(parsed_result["rms"], rms, rtol=1e-3))
+        self.assertTrue(np.isclose(parsed_result["mw_rms"], rms, rtol=1e-3))
 
         wrms = 0.56044
         self.assertTrue(np.isclose(float(parsed_result["wrms"]), wrms, rtol=1e-3))
@@ -461,7 +461,7 @@ class TestFileFormats(unittest.TestCase):
             parsed_result = pyckett.parse_fit_result(results["msg"], results["var"])
 
             rms = 0.030545
-            self.assertTrue(np.isclose(parsed_result["rms"], rms, rtol=1e-3))
+            self.assertTrue(np.isclose(parsed_result["mw_rms"], rms, rtol=1e-3))
 
             wrms = 0.6109
             self.assertTrue(np.isclose(float(parsed_result["wrms"]), wrms, rtol=1e-3))

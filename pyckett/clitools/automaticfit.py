@@ -314,7 +314,11 @@ def automaticfit_core(
     mw_rms = stats["mw_rms"]
     rl = stats["rejected_lines"]
     log_data.append(
-        {"mw_rms": float(mw_rms), "rejected_lines": int(rl), "lin_qn_cur": int(lin_qn_cur)}
+        {
+            "mw_rms": float(mw_rms),
+            "rejected_lines": int(rl),
+            "lin_qn_cur": int(lin_qn_cur),
+        }
     )
 
     return (par, log_data)

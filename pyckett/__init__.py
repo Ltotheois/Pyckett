@@ -370,6 +370,7 @@ def format_(value, formatspecifier):
 
     else:
         if formatspecifier.endswith("d"):
+            value = int(value)
             totallength = int(formatspecifier[:-1])
         else:
             totallength = int(formatspecifier[:-1].split(".")[0])
@@ -472,7 +473,7 @@ def parse_fit_result(message, var_dict):
         startindex = message.rfind(start_keyword) + len(start_keyword)
         stopindex = message.find(stop_keyword, startindex)
 
-        if label == 'wrms':
+        if label == "wrms":
             OLDWRMS, WRMS = message[startindex:stopindex].split()
             results["wrms_old"] = float(OLDWRMS)
             results["wrms"] = float(WRMS)
@@ -739,26 +740,38 @@ def df_to_cat(df, quanta=None):
 
     lines = []
 
-    for index, row in df.iterrows():
-        freq = format_(row["x"], "13.4f")
-        error = format_(row["error"], "8.4f")
-        intens = np.log10(row["y"]) if row["y"] > 0 else 0
+    columns = [
+        "x",
+        "error",
+        "y",
+        "degfreed",
+        "elower",
+        "usd",
+        "tag",
+        "qnfmt",
+    ] + qnlabels
+    for freq, error, intens, dof, elower, usd, tag, qnfmt, *qns in df[
+        columns
+    ].itertuples(name=None, index=None):
+        freq = format_(freq, "13.4f")
+        error = format_(error, "8.4f")
+        intens = np.log10(intens) if intens > 0 else 0
         intens = format_(intens, "8.4f")
-        dof = format_(row["degfreed"], "2d")
-        elower = format_(row["elower"], "10.4f")
-        usd = format_(row["usd"], "3p")
-        tag = format_(row["tag"], "7d")
-        qnfmt = format_(row["qnfmt"], "4d")
+        dof = format_(dof, "2d")
+        elower = format_(elower, "10.4f")
+        usd = format_(usd, "3p")
+        tag = format_(tag, "7d")
+        qnfmt = format_(qnfmt, "4d")
 
         qnsstring = ""
-        for qnlabel in qnlabels:
-            qn = row[qnlabel]
+        for qn in qns:
             if qn == SENTINEL:
                 qnsstring += "  "
             else:
-                qnsstring += format_(row[qnlabel], "2p")
+                qnsstring += format_(qn, "2p")
 
         lines.append(f"{freq}{error}{intens}{dof}{elower}{usd}{tag}{qnfmt}{qnsstring}")
+
     lines.append("")
 
     return "\n".join(lines)
@@ -785,29 +798,29 @@ def df_to_lin(df, quanta=None, custom_freq_format=None):
 
     lines = []
 
-    for _, row in df.iterrows():
+    columns = ["x", "error", "weight", "comment"] + qnlabels
+    for freq, error, weight, comment, *qns in df[columns].itertuples(
+        name=None, index=None
+    ):
         qnsstring = ""
         padstring = ""
-        for qnlabel in qnlabels:
-            if SENTINEL == row[qnlabel]:
+        for qn in qns:
+            if qn == SENTINEL:
                 padstring += "   "
             else:
-                qnsstring += format_(row[qnlabel], "3d")
+                qnsstring += format_(qn, "3d")
         qnsstring = qnsstring + padstring
-        comment = row["comment"].strip() if row["comment"] else ""
+        comment = comment.strip() if comment else ""
 
-        freq_format = "15.4f" if row["error"] >= 0 else "15.10f"
+        freq_format = "15.4f" if error >= 0 else "15.10f"
         if custom_freq_format:
             freq_format = custom_freq_format
-        freq = f"{{:{freq_format}}}".format(row["x"])
+        freq = f"{{:{freq_format}}}".format(freq)
 
-        error = (
-            format_(row["error"], "8.4f")
-            if abs(row["error"]) >= 1e-3
-            else f'{row["error"]:-8.1e}'
-        )
-        weight = format_(row["weight"], "13.4f")
+        error = format_(error, "8.4f") if abs(error) >= 1e-3 else f"{error:-8.1e}"
+        weight = format_(weight, "13.4f")
         lines.append(f"{qnsstring} {freq} {error} {weight}  {comment}")
+
     lines.append("")
 
     return "\n".join(lines)
@@ -878,23 +891,26 @@ def df_to_egy(df, quanta=None):
 
     lines = []
 
-    for index, row in df.iterrows():
-        iblk = format_(row["iblk"], "5d")
-        indx = format_(row["indx"], "5d")
-        egy = format_(row["egy"], "18.6f")
-        err = format_(row["err"], "18.6f")
-        pmix = format_(row["pmix"], "11.6f")
-        we = format_(row["we"], "5d")
+    columns = ["iblk", "indx", "egy", "err", "pmix", "we"] + qnlabels_energy
+    for iblk, indx, egy, err, pmix, we, *qns in df[columns].itertuples(
+        name=None, index=None
+    ):
+        iblk = format_(iblk, "5d")
+        indx = format_(indx, "5d")
+        egy = format_(egy, "18.6f")
+        err = format_(err, "18.6f")
+        pmix = format_(pmix, "11.6f")
+        we = format_(we, "5d")
 
         qnsstring = ""
-        for qnlabel in qnlabels_energy:
-            qn = row[qnlabel]
+        for qn in qns:
             if qn == SENTINEL:
                 qnsstring += "   "
             else:
-                qnsstring += format_(row[qnlabel], "3d")
+                qnsstring += format_(qn, "3d")
 
         lines.append(f" {iblk}{indx}{egy}{err}{pmix}{we}:{qnsstring}")
+
     lines.append("")
 
     return "\n".join(lines)
@@ -1284,36 +1300,65 @@ def df_to_erhamlines(df):
     df.iloc[:-1, col_blended] = df.iloc[1:, col_x].values == df.iloc[:-1, col_x].values
 
     in_blend = False
-    for index, row in df.iterrows():
-        is1, is2 = row["qnu4"], row["qnl4"]
-        qnu1, qnl1 = row["qnu1"], row["qnl1"]
+
+    columns = [
+        "x",
+        "error",
+        "weight",
+        "comment",
+        "qnu1",
+        "qnu2",
+        "qnu3",
+        "qnu4",
+        "qnl1",
+        "qnl2",
+        "qnl3",
+        "qnl4",
+        "blended",
+    ]
+    for (
+        freq,
+        error,
+        weight,
+        comment,
+        qnu1,
+        qnu2,
+        qnu3,
+        is1,
+        qnl1,
+        qnl2,
+        qnl3,
+        is2,
+        blended,
+    ) in df[columns].itertuples(name=None, index=None):
         tauu, taul = (
-            row["qnu2"] - row["qnu3"] + qnu1 + 1,
-            row["qnl2"] - row["qnl3"] + qnl1 + 1,
+            qnu2 - qnu3 + qnu1 + 1,
+            qnl2 - qnl3 + qnl1 + 1,
         )
 
-        x = format_(row["x"], "19.6f")
+        freq = format_(freq, "19.6f")
 
         if in_blend:
-            if row["blended"]:
-                blend = row["weight"]
+            if blended:
+                blend = weight
             else:
-                blend = -row["weight"]
+                blend = -weight
                 in_blend = False
         else:
-            if row["blended"]:
-                blend = row["weight"]
+            if blended:
+                blend = weight
                 in_blend = True
             else:
                 blend = 0
                 in_blend = False
 
         blend = format_(blend, "6.3f")
-        error = format_(row["error"], "11.6f")
+        error = format_(error, "11.6f")
 
         lines.append(
-            f"{is1:3.0f}{is2:3.0f}  {qnu1:3.0f}{tauu:3.0f}  {qnl1:3.0f}{taul:3.0f} {x} {blend} {error}"
+            f"{is1:3.0f}{is2:3.0f}  {qnu1:3.0f}{tauu:3.0f}  {qnl1:3.0f}{taul:3.0f} {freq} {blend} {error}"
         )
+
     lines.append("")
 
     return "\n".join(lines)
