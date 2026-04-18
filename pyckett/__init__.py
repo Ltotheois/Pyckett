@@ -536,8 +536,9 @@ def check_uncertainties(var_dict):
 
 def parse_param_id(param_id, vib_digits):
     """Parse parameter id to parameter dictionary."""
+    sign = np.sign(param_id)
     param_id = abs(param_id)
-    result = {}
+    result = {'sign': sign}
     for label, digits in get_par_digits(vib_digits).items():
         if digits == 0:
             continue
@@ -555,6 +556,7 @@ def format_param_id(dict_, vib_digits):
         # @Luis: Think about throwing an error here when the value is higher than the digits value!
         param_id += dict_.get(label, 0) * factor
         factor *= 10**digits
+    param_id = param_id * dict_['sign']
     return param_id
 
 
@@ -1008,15 +1010,10 @@ def parvar_to_dict(fname):
             try:
                 if not line.strip():
                     continue
-                keys = [
-                    "IDPAR",
-                    "PAR",
-                    "ERPAR",
-                    "LABEL",
-                ]  # Only here in case list is changed to dict
+
                 funcs = [int, np.float64, np.float64, lambda x: x.replace("/", "")]
                 paramline = [
-                    func(value) for key, value, func in zip(keys, line.split(), funcs)
+                    func(value) for value, func in zip(line.split(), funcs)
                 ]
 
                 result["PARAMS"].append(paramline)
