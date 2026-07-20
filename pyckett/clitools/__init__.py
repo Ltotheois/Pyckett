@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+# ruff: noqa: F403
+
 from .shortcuts import *
 from .addparameters import *
 from .uncertainties import *

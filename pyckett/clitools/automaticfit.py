@@ -9,7 +9,6 @@ import json
 import pyckett
 from pyckett.clitools import addparameters_core, omitparameters_core
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 
 # @Luis: Provide option for symmetric, linear molecules
 # @Luis: Maybe infer from Kmin and Kmax

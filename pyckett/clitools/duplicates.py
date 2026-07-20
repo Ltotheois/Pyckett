@@ -4,7 +4,6 @@
 # Author: Luis Bonah
 # Description : CLI tool for showing parameter uncertainties
 
-import os
 import argparse
 import pyckett
 
@@ -39,7 +38,7 @@ def duplicates():
     else:
         duplicatesfname = f"{linfname}_duplicates.lin"
 
-    qn_labels = [f"qn{ul}{i+1}" for ul in "ul" for i in range(pyckett.QUANTA)]
+    qn_labels = [f"qn{ul}{i + 1}" for ul in "ul" for i in range(pyckett.QUANTA)]
     duplicates = lin[lin.duplicated(subset=qn_labels, keep=keep)]
     n_duplicates = len(duplicates)
     non_duplicates = lin.drop_duplicates(subset=qn_labels, keep=keep)

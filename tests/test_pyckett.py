@@ -53,7 +53,7 @@ class TestCatFormat(unittest.TestCase):
                 "tag": np.int32,
                 "qnfmt": np.int16,
                 **{
-                    f"qn{ul}{i+1}": pyckett.pickett_int
+                    f"qn{ul}{i + 1}": pyckett.pickett_int
                     for ul in ("u", "l")
                     for i in range(6)
                 },
@@ -72,7 +72,7 @@ class TestCatFormat(unittest.TestCase):
                 "tag": np.int32,
                 "qnfmt": np.int16,
                 **{
-                    f"qn{ul}{i+1}": pyckett.pickett_int
+                    f"qn{ul}{i + 1}": pyckett.pickett_int
                     for ul in ("u", "l")
                     for i in range(6)
                 },
@@ -91,7 +91,7 @@ class TestCatFormat(unittest.TestCase):
                 "tag": np.int32,
                 "qnfmt": np.int16,
                 **{
-                    f"qn{ul}{i+1}": pyckett.pickett_int
+                    f"qn{ul}{i + 1}": pyckett.pickett_int
                     for ul in ("u", "l")
                     for i in range(8)
                 },
@@ -115,7 +115,7 @@ class TestCatFormat(unittest.TestCase):
                 "usd": 3,
                 "tag": 7,
                 "qnfmt": 4,
-                **{f"qn{ul}{i+1}": 2 for ul in ("u", "l") for i in range(6)},
+                **{f"qn{ul}{i + 1}": 2 for ul in ("u", "l") for i in range(6)},
             },
         )
 
@@ -130,7 +130,7 @@ class TestCatFormat(unittest.TestCase):
                 "usd": 3,
                 "tag": 7,
                 "qnfmt": 4,
-                **{f"qn{ul}{i+1}": 2 for ul in ("u", "l") for i in range(6)},
+                **{f"qn{ul}{i + 1}": 2 for ul in ("u", "l") for i in range(6)},
             },
         )
 
@@ -145,7 +145,7 @@ class TestCatFormat(unittest.TestCase):
                 "usd": 3,
                 "tag": 7,
                 "qnfmt": 4,
-                **{f"qn{ul}{i+1}": 2 for ul in ("u", "l") for i in range(8)},
+                **{f"qn{ul}{i + 1}": 2 for ul in ("u", "l") for i in range(8)},
             },
         )
 
@@ -161,7 +161,7 @@ class TestLinFormat(unittest.TestCase):
             pyckett.lin_dtypes_from_quanta(3),
             {
                 **{
-                    f"qn{ul}{i+1}": pyckett.pickett_int
+                    f"qn{ul}{i + 1}": pyckett.pickett_int
                     for ul in ("u", "l")
                     for i in range(6)
                 },
@@ -176,7 +176,7 @@ class TestLinFormat(unittest.TestCase):
             pyckett.lin_dtypes_from_quanta(6),
             {
                 **{
-                    f"qn{ul}{i+1}": pyckett.pickett_int
+                    f"qn{ul}{i + 1}": pyckett.pickett_int
                     for ul in ("u", "l")
                     for i in range(6)
                 },
@@ -191,7 +191,7 @@ class TestLinFormat(unittest.TestCase):
             pyckett.lin_dtypes_from_quanta(8),
             {
                 **{
-                    f"qn{ul}{i+1}": pyckett.pickett_int
+                    f"qn{ul}{i + 1}": pyckett.pickett_int
                     for ul in ("u", "l")
                     for i in range(8)
                 },
@@ -220,7 +220,7 @@ class TestEgyFormat(unittest.TestCase):
                 "pmix": np.float64,
                 "we": np.int64,
                 ":": str,
-                **{f"qn{i+1}": pyckett.pickett_int for i in range(6)},
+                **{f"qn{i + 1}": pyckett.pickett_int for i in range(6)},
             },
         )
 
@@ -234,7 +234,7 @@ class TestEgyFormat(unittest.TestCase):
                 "pmix": np.float64,
                 "we": np.int64,
                 ":": str,
-                **{f"qn{i+1}": pyckett.pickett_int for i in range(6)},
+                **{f"qn{i + 1}": pyckett.pickett_int for i in range(6)},
             },
         )
 
@@ -248,7 +248,7 @@ class TestEgyFormat(unittest.TestCase):
                 "pmix": np.float64,
                 "we": np.int64,
                 ":": str,
-                **{f"qn{i+1}": pyckett.pickett_int for i in range(8)},
+                **{f"qn{i + 1}": pyckett.pickett_int for i in range(8)},
             },
         )
 
@@ -268,7 +268,7 @@ class TestEgyFormat(unittest.TestCase):
                 "pmix": 11,
                 "we": 5,
                 ":": 1,
-                **{f"qn{i+1}": 3 for i in range(6)},
+                **{f"qn{i + 1}": 3 for i in range(6)},
             },
         )
 
@@ -282,7 +282,7 @@ class TestEgyFormat(unittest.TestCase):
                 "pmix": 11,
                 "we": 5,
                 ":": 1,
-                **{f"qn{i+1}": 3 for i in range(6)},
+                **{f"qn{i + 1}": 3 for i in range(6)},
             },
         )
 
@@ -296,7 +296,7 @@ class TestEgyFormat(unittest.TestCase):
                 "pmix": 11,
                 "we": 5,
                 ":": 1,
-                **{f"qn{i+1}": 3 for i in range(8)},
+                **{f"qn{i + 1}": 3 for i in range(8)},
             },
         )
 
@@ -431,7 +431,6 @@ class TestFileFormats(unittest.TestCase):
     def test_CH2O_more_quanta(self):
         pyckett.QUANTA = 7
         try:
-
             lin = pyckett.lin_to_df("tests/resources/ch2o.lin", sort=False)
             par = pyckett.parvar_to_dict("tests/resources/ch2o.par")
             int_ = pyckett.int_to_dict("tests/resources/ch2o.int")
@@ -472,7 +471,7 @@ class TestFileFormats(unittest.TestCase):
             diverging = "NEVER"
             self.assertEqual(parsed_result["diverging"], diverging)
 
-        except Exception as E:
+        except Exception:
             raise
         finally:
             pyckett.QUANTA = 6

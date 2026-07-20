@@ -7,7 +7,6 @@
 import os.path
 import pyckett
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 
 # @Luis: Provide option for symmetric, linear molecules
 # @Luis: Maybe infer from Kmin and Kmax
@@ -244,10 +243,14 @@ def addparameters_core(
             lin_states = set()
         else:
             lin_states = set(lin[qnu].unique()) & set(lin[qnl].unique())
-        update_base_states = lambda ud, bs: [
-            pyckett.format_param_id({**ud, **pyckett.parse_param_id(id, 0)}, VIB_DIGITS)
-            for id in bs
-        ]
+
+        def update_base_states(ud, bs):
+            return [
+                pyckett.format_param_id(
+                    {**ud, **pyckett.parse_param_id(id, 0)}, VIB_DIGITS
+                )
+                for id in bs
+            ]
 
         # Add base parameters for all rotational states
         for v in rotationstates | lin_states:
@@ -274,15 +277,23 @@ def addparameters_core(
             )
 
         rotational_cands = rotational_cands - present_params
-        get_comment = lambda id: ROTATIONAL_PARAMS.get(
-            pyckett.format_param_id(pyckett.parse_param_id(id, VIB_DIGITS), 0), ("",)
-        )[0]
+
+        def get_comment(id):
+            return ROTATIONAL_PARAMS.get(
+                pyckett.format_param_id(pyckett.parse_param_id(id, VIB_DIGITS), 0),
+                ("",),
+            )[0]
+
         rotational_cands = [(id, get_comment(id)) for id in rotational_cands]
 
         interstate_cands = interstate_cands - present_params
-        get_comment = lambda id: INTERSTATE_PARAMS.get(
-            pyckett.format_param_id(pyckett.parse_param_id(id, VIB_DIGITS), 0), ("",)
-        )[0]
+
+        def get_comment(id):
+            return INTERSTATE_PARAMS.get(
+                pyckett.format_param_id(pyckett.parse_param_id(id, VIB_DIGITS), 0),
+                ("",),
+            )[0]
+
         interstate_cands = [(id, get_comment(id)) for id in interstate_cands]
 
         candidates = []
@@ -336,22 +347,22 @@ def addparameters_core(
 
     # Final report
     init_value = (
-        f"{init_stats[sort_key]*1000 :.2f} kHz"
+        f"{init_stats[sort_key] * 1000:.2f} kHz"
         if sort_key == "mw_rms"
         else f"{init_stats[sort_key]:.2f}"
     )
     prit(
         report,
-        f'\nInitial values were an {sort_key.upper()} of {init_value}, {init_stats["stats"]["rejected_lines"]} rejected lines, and diverging {init_stats["stats"]["diverging"]}.',
+        f"\nInitial values were an {sort_key.upper()} of {init_value}, {init_stats['stats']['rejected_lines']} rejected lines, and diverging {init_stats['stats']['diverging']}.",
     )
     best_value = (
-        f"{best_stats[sort_key]*1000 :.2f} kHz"
+        f"{best_stats[sort_key] * 1000:.2f} kHz"
         if sort_key == "mw_rms"
         else f"{best_stats[sort_key]:.2f}"
     )
     prit(
         report,
-        f'\nBest run is parameter {best_stats["id"][0]} with a final parameter value of {best_stats["par"][-1][1]:.2e}, {sort_key.upper()} of {best_value}, {best_stats["stats"]["rejected_lines"]} rejected lines, and diverging {best_stats["stats"]["diverging"]}.',
+        f"\nBest run is parameter {best_stats['id'][0]} with a final parameter value of {best_stats['par'][-1][1]:.2e}, {sort_key.upper()} of {best_value}, {best_stats['stats']['rejected_lines']} rejected lines, and diverging {best_stats['stats']['diverging']}.",
     )
 
     if bestparfile is not None:

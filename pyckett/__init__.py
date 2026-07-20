@@ -68,7 +68,7 @@ def qnlabels_from_quanta(n=6):
     """
 
     n = max(6, n)
-    return [f"qn{ul}{i+1}" for ul in ("u", "l") for i in range(n)]
+    return [f"qn{ul}{i + 1}" for ul in ("u", "l") for i in range(n)]
 
 
 QNLABELS = qnlabels_from_quanta()
@@ -90,7 +90,7 @@ def qnlabels_energy_from_quanta(n=6):
     """
 
     n = max(6, n)
-    return [f"qn{i+1}" for i in range(n)]
+    return [f"qn{i + 1}" for i in range(n)]
 
 
 QNLABELS_ENERGY = qnlabels_energy_from_quanta()
@@ -152,7 +152,7 @@ def cat_dtypes_from_quanta(n=6):
         "usd": pickett_int,
         "tag": np.int32,
         "qnfmt": np.int16,
-        **{f"qn{ul}{i+1}": pickett_int for ul in ("u", "l") for i in range(n)},
+        **{f"qn{ul}{i + 1}": pickett_int for ul in ("u", "l") for i in range(n)},
     }
     return dtype_dict
 
@@ -185,7 +185,7 @@ def cat_widths_from_quanta(n=6):
         "usd": 3,
         "tag": 7,
         "qnfmt": 4,
-        **{f"qn{ul}{i+1}": 2 for ul in ("u", "l") for i in range(n)},
+        **{f"qn{ul}{i + 1}": 2 for ul in ("u", "l") for i in range(n)},
     }
     return width_dict
 
@@ -210,7 +210,7 @@ def lin_dtypes_from_quanta(n=6):
 
     n = max(6, n)
     dtype_dict = {
-        **{f"qn{ul}{i+1}": pickett_int for ul in ("u", "l") for i in range(n)},
+        **{f"qn{ul}{i + 1}": pickett_int for ul in ("u", "l") for i in range(n)},
         "x": np.float64,
         "error": np.float64,
         "weight": np.float64,
@@ -246,7 +246,7 @@ def egy_dtypes_from_quanta(n=6):
         "pmix": np.float64,
         "we": np.int64,
         ":": str,
-        **{f"qn{i+1}": pickett_int for i in range(n)},
+        **{f"qn{i + 1}": pickett_int for i in range(n)},
     }
     return dtype_dict
 
@@ -278,7 +278,7 @@ def egy_widths_from_quanta(n=6):
         "pmix": 11,
         "we": 5,
         ":": 1,
-        **{f"qn{i+1}": 3 for i in range(n)},
+        **{f"qn{i + 1}": 3 for i in range(n)},
     }
     return width_dict
 
@@ -359,13 +359,13 @@ def format_(value, formatspecifier):
             return "*" * totallength
 
         if quotient == 0:
-            return f"{sign*modulo:{totallength}}"
+            return f"{sign * modulo:{totallength}}"
         elif quotient > 9:
             quotient = chr(55 + quotient)
         elif quotient < 0:
             quotient = chr(96 - quotient)
 
-        modulo = f"{{:0{totallength-1}}}".format(modulo)
+        modulo = f"{{:0{totallength - 1}}}".format(modulo)
         return f"{quotient}{modulo}"
 
     else:
@@ -405,7 +405,7 @@ def get_active_qns(df, quanta=None):
             "You are trying to get the active quantum numbers of an empty dataframe."
         )
 
-    qns = {f"qn{ul}{i+1}": True for ul in ("u", "l") for i in range(quanta)}
+    qns = {f"qn{ul}{i + 1}": True for ul in ("u", "l") for i in range(quanta)}
     for qn in qns.keys():
         unique_values = df[qn].unique()
         if len(unique_values) == 1 and unique_values[0] == SENTINEL:
@@ -538,7 +538,7 @@ def parse_param_id(param_id, vib_digits):
     """Parse parameter id to parameter dictionary."""
     sign = np.sign(param_id)
     param_id = abs(param_id)
-    result = {'sign': sign}
+    result = {"sign": sign}
     for label, digits in get_par_digits(vib_digits).items():
         if digits == 0:
             continue
@@ -556,7 +556,7 @@ def format_param_id(dict_, vib_digits):
         # @Luis: Think about throwing an error here when the value is higher than the digits value!
         param_id += dict_.get(label, 0) * factor
         factor *= 10**digits
-    param_id = param_id * dict_['sign']
+    param_id = param_id * dict_["sign"]
     return param_id
 
 
@@ -705,8 +705,8 @@ def lin_to_df(
 
     noq = noq // 2
 
-    columns_qn = [f"qn{ul}{i+1}" for ul in ("u", "l") for i in range(noq)] + [
-        f"qn{ul}{i+1}" for ul in ("u", "l") for i in range(noq, quanta)
+    columns_qn = [f"qn{ul}{i + 1}" for ul in ("u", "l") for i in range(noq)] + [
+        f"qn{ul}{i + 1}" for ul in ("u", "l") for i in range(noq, quanta)
     ]
     data.columns = columns_qn + list(data.columns[2 * quanta :])
 
@@ -1012,9 +1012,7 @@ def parvar_to_dict(fname):
                     continue
 
                 funcs = [int, np.float64, np.float64, lambda x: x.replace("/", "")]
-                paramline = [
-                    func(value) for value, func in zip(line.split(), funcs)
-                ]
+                paramline = [func(value) for value, func in zip(line.split(), funcs)]
 
                 result["PARAMS"].append(paramline)
             except Exception:
@@ -1599,7 +1597,7 @@ def check_crossings(egy_df, states, kas, Jmax=60):
     for crossing in crossings:
         J = crossing[2]
         output.append(
-            f"{crossing[0][0]:3d}, {crossing[1][0]:3d} @ {crossing[0][1]:3d}, {crossing[0][2]:1d} & {crossing[1][1]:3d}, {crossing[1][2]:1d} @ {J:3d}, {J+1:3d}"
+            f"{crossing[0][0]:3d}, {crossing[1][0]:3d} @ {crossing[0][1]:3d}, {crossing[0][2]:1d} & {crossing[1][1]:3d}, {crossing[1][2]:1d} @ {J:3d}, {J + 1:3d}"
         )
 
     output.append(f"\nFound {len(crossings)} crossings in total.")
@@ -1915,25 +1913,26 @@ def get_dr_candidates(df1, df2, quanta=None):
 
     quanta = max(6, quanta or QUANTA)
 
-    qns_active1, qns_active2 = get_active_qns(df1, quanta=quanta), get_active_qns(
-        df2, quanta=quanta
+    qns_active1, qns_active2 = (
+        get_active_qns(df1, quanta=quanta),
+        get_active_qns(df2, quanta=quanta),
     )
     qns_upper = [
-        f"qnu{i+1}"
+        f"qnu{i + 1}"
         for i in range(quanta)
-        if qns_active1[f"qnu{i+1}"] and qns_active2[f"qnu{i+1}"]
+        if qns_active1[f"qnu{i + 1}"] and qns_active2[f"qnu{i + 1}"]
     ]
     qns_lower = [
-        f"qnl{i+1}"
+        f"qnl{i + 1}"
         for i in range(quanta)
-        if qns_active1[f"qnl{i+1}"] and qns_active2[f"qnl{i+1}"]
+        if qns_active1[f"qnl{i + 1}"] and qns_active2[f"qnl{i + 1}"]
     ]
 
     qns_inactive = [
-        f"qn{ul}{i+1}"
+        f"qn{ul}{i + 1}"
         for i in range(quanta)
         for ul in ("u", "l")
-        if not (qns_active1[f"qnu{i+1}"] and qns_active2[f"qnu{i+1}"])
+        if not (qns_active1[f"qnu{i + 1}"] and qns_active2[f"qnu{i + 1}"])
     ]
 
     schemes = {
@@ -1978,7 +1977,7 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
         return ("Your *.lin file is empty.", results)
 
     if noq is None:
-        qnu_labels = [f"qnu{i+1}" for i in range(QUANTA)]
+        qnu_labels = [f"qnu{i + 1}" for i in range(QUANTA)]
         noq = len(qnu_labels)
         for i, qnu_label in enumerate(qnu_labels):
             unique_values = lin_df[qnu_label].unique()
@@ -1986,27 +1985,27 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
                 noq = i
                 break
 
-    qns_visible = [f"qn{ul}{n+1}" for ul in ("u", "l") for n in range(noq)]
+    qns_visible = [f"qn{ul}{n + 1}" for ul in ("u", "l") for n in range(noq)]
 
     results["not"] = len(lin_df)
     results["nol"] = lin_df["x"].nunique()
     results["non"] = len(lin_df[lin_df["weight"] == 0])
     results["nod"] = sum(lin_df.duplicated(subset=qns_visible))
 
-    report.append((f"Transitions:", results["not"]))
-    report.append((f"Lines:", results["nol"]))
-    report.append((f"Unweighted Transitions:", results["non"]))
-    report.append((f"Duplicates:", results["nod"]))
+    report.append(("Transitions:", results["not"]))
+    report.append(("Lines:", results["nol"]))
+    report.append(("Unweighted Transitions:", results["non"]))
+    report.append(("Duplicates:", results["nod"]))
     report.append(("", ""))
 
-    results[f"x_min"] = lin_df["x"].min()
-    results[f"x_max"] = lin_df["x"].max()
-    report.append((f"Frequency min:", results["x_min"]))
-    report.append((f"Frequency max:", results["x_max"]))
+    results["x_min"] = lin_df["x"].min()
+    results["x_max"] = lin_df["x"].max()
+    report.append(("Frequency min:", results["x_min"]))
+    report.append(("Frequency max:", results["x_max"]))
 
     for i in range(noq):
         for ul in ("u", "l"):
-            tag = f"qn{ul}{i+1}"
+            tag = f"qn{ul}{i + 1}"
             results[f"{tag}_min"] = lin_df[tag].min()
             results[f"{tag}_max"] = lin_df[tag].max()
             report.append((f"{tag} min:", results[f"{tag}_min"]))
@@ -2068,8 +2067,8 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
     # List number of transitions for transition types
     delta_labels = []
     for i in range(noq):
-        label = f"Δqn{i+1}"
-        lin_df[label] = lin_df[f"qnu{i+1}"] - lin_df[f"qnl{i+1}"]
+        label = f"Δqn{i + 1}"
+        lin_df[label] = lin_df[f"qnu{i + 1}"] - lin_df[f"qnl{i + 1}"]
         delta_labels.append(label)
     delta_df = lin_df.groupby(delta_labels).count()["x"].reset_index()
     table_string = ["\n\nNumber of transitions by transition type:\n"]
@@ -2100,11 +2099,11 @@ def create_report(lin_df, cat_df=None, *, noq=None, blends=True):
             )
         if results["not"] != results["nom"]:
             report.append(
-                f"\nWARNING: {results['not']-results['nom']} assignments have no matching prediction. This affects i.a. the RMS and WRMS."
+                f"\nWARNING: {results['not'] - results['nom']} assignments have no matching prediction. This affects i.a. the RMS and WRMS."
             )
         if any(df["error_lin"] == 0):
             report.append(
-                f"\nWARNING: Some errors (uncertainties) of your assignments are zero. This leads to infinity values for the relative deviation and the WRMS. Consider using 'error != 0' in the query field."
+                "\nWARNING: Some errors (uncertainties) of your assignments are zero. This leads to infinity values for the relative deviation and the WRMS. Consider using 'error != 0' in the query field."
             )
 
     report.extend(table_string)

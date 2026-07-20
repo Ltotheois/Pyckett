@@ -35,7 +35,7 @@ def separatefits():
     args = parser.parse_args()
 
     linfname = args.linfile
-    base, ext = os.path.splitext(linfname)
+    _, ext = os.path.splitext(linfname)
     if not ext:
         linfname = linfname + ".lin"
 
@@ -104,9 +104,11 @@ def separatefits():
         states = sorted(set(states))
         ##########################################################################################
 
-        filter_states = lambda x: (x[0] in states and x[1] in states) or (
-            x[0] == ALL_STATES and x[1] == ALL_STATES
-        )
+        def filter_states(x):
+            return (x[0] in states and x[1] in states) or (
+                x[0] == ALL_STATES and x[1] == ALL_STATES
+            )
+
         tmp_params = [x[-1].copy() for x in params if filter_states(x)]
         tmp_par = copy.deepcopy(par)
 
@@ -202,5 +204,5 @@ def separatefits():
         if "mw_rms" in results:
             # print(f"States {states_identifier:15};   RMS {results['rms']*1000 :12.4f} kHz; Rejected lines {results['rejected_lines'] :7.0f} /{results['total_lines'] :7.0f}")
             print(
-                f"{states_identifier:15}|{results['mw_rms']*1000 :12.4f} |{results['wrms']:11.4f} |{results['rejected_lines'] :11.0f} |{results['total_lines'] :8.0f} |{results['total_transitions'] :8.0f} "
+                f"{states_identifier:15}|{results['mw_rms'] * 1000:12.4f} |{results['wrms']:11.4f} |{results['rejected_lines']:11.0f} |{results['total_lines']:8.0f} |{results['total_transitions']:8.0f} "
             )
