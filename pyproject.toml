@@ -19,6 +19,12 @@ classifiers = [
 ]
 keywords = ["pickett", "spectroscopy", "spfit", "spcat"]
 
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "unittest",
+]
+
 
 [project.urls]
 "Homepage" = "https://github.com/Ltotheois/Pyckett/"
