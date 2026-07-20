@@ -22,7 +22,6 @@ keywords = ["pickett", "spectroscopy", "spfit", "spcat"]
 [project.optional-dependencies]
 dev = [
     "ruff",
-    "unittest",
 ]
 
 
