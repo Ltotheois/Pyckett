@@ -1359,6 +1359,139 @@ def df_to_erhamlines(df):
     return "\n".join(lines)
 
 
+def fit_to_df(fname, zeroes_as_empty=False, quanta=None, convert_to_MHz=False):
+    """Convert *.fit file to dataframe.
+
+    Parameters
+    ----------
+    fname: path, or file-like object
+        Path, or file-like object holding the *.fit output.
+    zeroes_as_empty: bool
+        If all zero columns should be interpreted as inactive columns.
+    quanta: int or None
+        The number of used quanta. None means use global setting.
+    convert_to_MHz: bool
+        If values in wavenumbers should be converted to MHz.
+
+    Returns
+    -------
+    dataframe
+            Dataframe holding the *.lin data.
+    """
+
+    quanta = max(6, quanta or QUANTA)
+    qns_labels = [f"qn{ul}{i + 1}" for ul in "ul" for i in range(quanta)]
+
+    with open(fname, "r") as file:
+        content = file.read()
+
+    start_string = "                                        EXP.FREQ.  -  CALC.FREQ. -   DIFF.  - EXP.ERR.- EST.ERR.-AVG. CALC.FREQ. -  DIFF. - WT."
+    i_start = content.rfind(start_string) + len(start_string)
+
+    stop_string = "NORMALIZED DIAGONAL:"
+    i_stop = content.find(stop_string, i_start)
+
+    residuals_string = content[i_start:i_stop]
+
+    data = []
+
+    check_skip = False
+    skip_args = None
+
+    for line in residuals_string.split("\n"):
+        if not line.strip() or "Lines rejected from fit" in line:
+            continue
+
+        if line.startswith(" ***** NEXT LINE NOT USED IN FIT"):
+            check_skip = True
+            skip_args = None
+            continue
+
+        _, tmp = line.split(":")
+
+        i_end_qns = 1 + 6 * quanta
+
+        qns_string = tmp[1:i_end_qns]
+        qns = [pickett_int(qns_string[i : i + 3]) for i in range(0, len(qns_string), 3)]
+
+        other_values_string = tmp[i_end_qns:]
+        x_exp, x_cat, x_dev, err_exp, err_est, *blend_values = [
+            float(x) for x in other_values_string.split()
+        ]
+        if len(blend_values):
+            x_cat, x_dev, weight = blend_values
+        else:
+            weight = 1
+
+        if check_skip:
+            if skip_args is None:
+                skip_args = x_exp, err_exp
+                skipped = True
+            elif skip_args == (x_exp, err_exp):
+                skipped = True
+            else:
+                check_skip = False
+                skipped = False
+        else:
+            skipped = False
+
+        data.append((skipped, x_exp, x_cat, x_dev, err_exp, err_est, weight, *qns))
+
+    other_columns = [
+        "skipped",
+        "x_lin",
+        "x_cat",
+        "x_dev",
+        "error_lin",
+        "error_cat",
+        "weight",
+    ]
+    columns = other_columns + qns_labels
+    data = pd.DataFrame(data, columns=columns)
+
+    # Set correct columns for data
+    noq = len(qns_labels)
+    for i in range(len(qns_labels)):
+        if all(SENTINEL == data[qns_labels[i]]):
+            noq = i
+            break
+
+        # Zeros_as_empty supports AABS format where empty quantum numbers are denoted as zero
+        # This can lead to ambiguous results if there are all-zero columns
+        if zeroes_as_empty and all(0 == data[qns_labels[i]]):
+            following_columns_are_zero = [
+                all(0 == data[qns_labels[j]]) for j in range(i + 1, len(qns_labels))
+            ]
+            if all(following_columns_are_zero):
+                # Return even value as we might otherwise neglect the column with all zeroes for the state
+                noq = i + (i % 2 == 1)
+                # Unset the following columns
+                for j in range(noq, len(qns_labels)):
+                    data[qns_labels[j]] = SENTINEL
+
+                break
+
+    noq = noq // 2
+
+    columns_qn = [f"qn{ul}{i + 1}" for ul in ("u", "l") for i in range(noq)] + [
+        f"qn{ul}{i + 1}" for ul in ("u", "l") for i in range(noq, quanta)
+    ]
+    data.columns = other_columns + columns_qn
+
+    if convert_to_MHz:
+        mask = data["error_lin"] < 0
+        data.loc[mask, "error_lin"] *= -WN_TO_MHZ
+        data.loc[mask, "error_cat"] *= -WN_TO_MHZ
+        data.loc[mask, "x_lin"] *= WN_TO_MHZ
+        data.loc[mask, "x_cat"] *= WN_TO_MHZ
+        data.loc[mask, "x_dev"] *= WN_TO_MHZ
+
+    data["abs_dev"] = np.abs(data["x_dev"])
+    data["rel_dev"] = data["abs_dev"] / np.abs(data["error_lin"])
+
+    return data
+
+
 ## SPFIT/SPCAT functions
 def run_spfit(fname, parameterfile="", path=None, wd=None):
     """Run SPFIT.
