@@ -556,7 +556,7 @@ def format_param_id(dict_, vib_digits):
         # @Luis: Think about throwing an error here when the value is higher than the digits value!
         param_id += dict_.get(label, 0) * factor
         factor *= 10**digits
-    param_id = param_id * dict_["sign"]
+    param_id = param_id * (dict_["sign"] or 1)
     return param_id
 
 
