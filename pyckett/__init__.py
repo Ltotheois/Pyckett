@@ -1385,13 +1385,9 @@ def fit_to_df(fname, zeroes_as_empty=False, quanta=None, convert_to_MHz=False):
     with open(fname, "r") as file:
         content = file.read()
 
-    start_string = "                                        EXP.FREQ.  -  CALC.FREQ. -   DIFF.  - EXP.ERR.- EST.ERR.-AVG. CALC.FREQ. -  DIFF. - WT."
+    start_string = "EXP.FREQ.  -  CALC.FREQ. -   DIFF.  - EXP.ERR.- EST.ERR.-AVG. CALC.FREQ. -  DIFF. - WT."
     i_start = content.rfind(start_string) + len(start_string)
-
-    stop_string = "NORMALIZED DIAGONAL:"
-    i_stop = content.find(stop_string, i_start)
-
-    residuals_string = content[i_start:i_stop]
+    residuals_string = content[i_start:]
 
     data = []
 
@@ -1399,15 +1395,21 @@ def fit_to_df(fname, zeroes_as_empty=False, quanta=None, convert_to_MHz=False):
     skip_args = None
 
     for line in residuals_string.split("\n"):
-        if not line.strip() or "Lines rejected from fit" in line:
+        if not line.strip():
             continue
+
+        if "Lines rejected from fit" in line or "Fit Diverging: restore parameters" in line or "NORMALIZED DIAGONAL:" in line:
+            break
 
         if line.startswith(" ***** NEXT LINE NOT USED IN FIT"):
             check_skip = True
             skip_args = None
             continue
 
-        _, tmp = line.split(":")
+        tmp = line.split(":")
+        if len(tmp) != 2:
+            break
+        tmp = tmp[1]
 
         i_end_qns = 1 + 6 * quanta
 

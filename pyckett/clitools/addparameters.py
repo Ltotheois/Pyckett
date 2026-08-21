@@ -323,12 +323,11 @@ def addparameters_core(
     prit(report, "-" * len(header))
 
     best_stats = init_stats
-    for i, stats in enumerate(results):
+    for _, stats in enumerate(results):
         if (
             stats[sort_key] < best_stats[sort_key]
             and stats["stats"]["rejected_lines"]
             <= best_stats["stats"]["rejected_lines"]
-            and stats["stats"]["diverging"] != "LAST"
         ):
             best_stats = stats
 
