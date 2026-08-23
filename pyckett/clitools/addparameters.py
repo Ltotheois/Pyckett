@@ -115,7 +115,9 @@ def addparameters():
     lin = pyckett.lin_to_df(linfname, sort=False)
     par = pyckett.parvar_to_dict(parfname)
 
-    if not args.skipparupdate:
+    if args.skipparupdate:
+        par["NPAR"] = max(par["NPAR"], len(par["PARAMS"]) + 1)
+    else:
         par.update(pyckett.PARUPDATE)
 
     VIB_DIGITS = pyckett.get_vib_digits(par)

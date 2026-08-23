@@ -1398,7 +1398,11 @@ def fit_to_df(fname, zeroes_as_empty=False, quanta=None, convert_to_MHz=False):
         if not line.strip():
             continue
 
-        if "Lines rejected from fit" in line or "Fit Diverging: restore parameters" in line or "NORMALIZED DIAGONAL:" in line:
+        if (
+            "Lines rejected from fit" in line
+            or "Fit Diverging: restore parameters" in line
+            or "NORMALIZED DIAGONAL:" in line
+        ):
             break
 
         if line.startswith(" ***** NEXT LINE NOT USED IN FIT"):
@@ -2336,49 +2340,46 @@ POSSIBLE_PARAMS_LINEAR = {
 
 INITIAL_PARAMS_INTERACTION = {2000, 2100, 4000, 4100, 6000, 6100, 0, 400}
 
+interaction_types = {
+    2000: "Ga",
+    2100: "Fbc",
+    2200: "G2a",
+    2300: "F2bc",
+    4000: "Gb",
+    4100: "Fac",
+    4200: "G2b",
+    4300: "F2ac",
+    6000: "Gc",
+    6100: "Fab",
+    6200: "G2c",
+    6300: "F2ab",
+    0: "W",
+    400: "W2",
+}
+
+parameter_dicts_per_type = [
+    {
+        typ + 00: (
+            f"{prefix}",
+            (typ + 1, typ + 10, typ + 200)
+            if typ % 1000 in (0, 100) and typ
+            else (typ + 1, typ + 10),
+        ),
+        typ + 1: (f"{prefix}J", (typ + 2, typ + 11)),
+        typ + 10: (f"{prefix}K", (typ + 11, typ + 20)),
+        typ + 2: (f"{prefix}JJ", (typ + 3, typ + 12)),
+        typ + 11: (f"{prefix}JK", (typ + 12, typ + 21)),
+        typ + 20: (f"{prefix}KK", (typ + 21, typ + 30)),
+        typ + 3: (f"{prefix}JJJ", ()),
+        typ + 12: (f"{prefix}JJK", ()),
+        typ + 21: (f"{prefix}JKK", ()),
+        typ + 30: (f"{prefix}KKK", ()),
+    }
+    for typ, prefix in interaction_types.items()
+]
+
 POSSIBLE_PARAMS_INTERACTION = {
-    2000: ("Ga", (2001, 2010, 2200)),
-    2001: ("GaJ", ()),
-    2010: ("GaK", ()),
-    2100: ("Fbc", (2101, 2110, 2300)),
-    2101: ("FbcJ", ()),
-    2110: ("FbcK", ()),
-    2200: ("G2a", (2201, 2210)),
-    2201: ("G2aJ", ()),
-    2210: ("G2aK", ()),
-    2300: ("F2bc", (2301, 2310)),
-    2301: ("F2bcJ", ()),
-    2310: ("F2bcK", ()),
-    4000: ("Gb", (4001, 4010, 4200)),
-    4001: ("GbJ", ()),
-    4010: ("GbK", ()),
-    4100: ("Fac", (4101, 4110, 4300)),
-    4101: ("FacJ", ()),
-    4110: ("FacK", ()),
-    4200: ("G2b", (4201, 4210)),
-    4201: ("G2bJ", ()),
-    4210: ("G2bK", ()),
-    4300: ("F2ac", (4301, 4310)),
-    4301: ("F2acJ", ()),
-    4310: ("F2acK", ()),
-    6000: ("Gc", (6001, 6010, 6200)),
-    6001: ("GcJ", ()),
-    6010: ("GcK", ()),
-    6100: ("Fab", (6101, 6110, 6300)),
-    6101: ("FabJ", ()),
-    6110: ("FabK", ()),
-    6200: ("G2c", (6201, 6210)),
-    6201: ("G2cJ", ()),
-    6210: ("G2cK", ()),
-    6300: ("F2ab", (6301, 6310)),
-    6301: ("F2abJ", ()),
-    6310: ("F2abK", ()),
-    0: ("F", (1, 10)),
-    1: ("FJ", ()),
-    10: ("FK", ()),
-    400: ("F2", (401, 410)),
-    401: ("F2J", ()),
-    410: ("F2K", ()),
+    key: value for dict_ in parameter_dicts_per_type for key, value in dict_.items()
 }
 
 if __name__ == "__main__":
