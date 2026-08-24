@@ -442,15 +442,15 @@ def get_par_digits(vib_digits):
     }
 
 
-def parse_fit_result(message, var_dict):
+def parse_fit_result(message, var_dict=None):
     """Find relevant stats in SPFIT output.
 
     Parameters
     ----------
     message: str
         The SPFIT output.
-    var_dict: dict
-        The dict holding the *.var file data.
+    var_dict: None or dict
+        The dict holding the *.var file data. None skips the calculation of the parameter uncertainties.
 
     Returns
     -------
@@ -503,7 +503,8 @@ def parse_fit_result(message, var_dict):
 
     results["diverging"] = fit_diverging
 
-    results["paramuncertainties"] = check_uncertainties(var_dict)
+    if var_dict:
+        results["paramuncertainties"] = check_uncertainties(var_dict)
 
     return results
 
