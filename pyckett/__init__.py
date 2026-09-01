@@ -935,7 +935,9 @@ def parvar_to_dict(fname):
     result = {}
     tmp_file = open(fname, "r") if not isinstance(fname, io.StringIO) else fname
     with tmp_file as file:
-        result["TITLE"] = file.readline().replace("\n", "")
+        tmp = file.readline().replace("\n", "")
+        result["TITLE"] = tmp[:56]
+        result["DATE"] = tmp[56:]
 
         keys = ["NPAR", "NLINE", "NITR", "NXPAR", "THRESH", "ERRTST", "FRAC", "CAL"]
         result.update({key: value for key, value in zip(keys, file.readline().split())})
@@ -958,7 +960,7 @@ def parvar_to_dict(fname):
         result.update({key: value for key, value in zip(keys, file.readline().split())})
 
         for key, value in result.items():
-            if key not in ["TITLE", "CHR"]:
+            if key not in ["TITLE", "DATE", "CHR"]:
                 value = np.float64(value)
                 if value % 1 == 0:
                     result[key] = int(value)
@@ -1036,7 +1038,7 @@ def dict_to_parvar(dict_):
         Data of the dict in *.par/*.var format.
     """
     output = []
-    output.append(dict_["TITLE"])
+    output.append(f'{dict_["TITLE"]:56}{dict_["DATE"]}')
 
     formats = [
         "{:4.0f}",
