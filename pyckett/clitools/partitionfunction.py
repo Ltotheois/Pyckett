@@ -81,14 +81,15 @@ def partitionfunction():
 
     egyfilename = args.egyfile
 
+    temperatures = list(Temperatures)
     if args.temperatures:
-        Temperatures.extend(args.temperatures)
-        Temperatures.sort(reverse=True)
+        temperatures.extend(args.temperatures)
+        temperatures.sort(reverse=True)
 
     egy_df = pyckett.egy_to_df(egyfilename)
     calc_partition_function(
         egy_df,
-        Temperatures,
+        temperatures,
         convergence_plot=args.convergence,
         print_output=True,
         use_pickett_factor=args.use_pickett_factor,

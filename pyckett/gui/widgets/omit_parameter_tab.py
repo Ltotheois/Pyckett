@@ -102,7 +102,7 @@ class OmitParameterTabWidget(ParameterTestTabWidget):
 
         self.status_label.setText("Running…")
         self.progress.show()
-        self._run_worker(omitparameters_core, par_copy, lin_doc.data, on_done=self._on_finished, **kwargs)
+        self._run_worker(omitparameters_core, par_copy, lin_doc.copy_data(), on_done=self._on_finished, **kwargs)
 
     def _on_finished(self, runs):
         self.progress.hide()

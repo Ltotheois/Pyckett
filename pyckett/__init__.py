@@ -416,7 +416,7 @@ def get_active_qns(df, quanta=None):
 
 def get_vib_digits(par):
     """Return number of vibrational states digits."""
-    vib_digits = int(np.log10(abs(par["NVIB"]))) + 1
+    vib_digits = len(str(abs(int(par["NVIB"]))))
     return vib_digits
 
 
@@ -824,8 +824,12 @@ def df_to_cat(df, quanta=None):
     ].itertuples(name=None, index=None):
         freq = format_(freq, "13.4f")
         error = format_(error, "8.4f")
-        intens = np.log10(intens) if intens > 0 else 0
-        intens = format_(intens, "8.4f")
+        if intens <= 0:
+            raise ValueError(
+                f"Cannot write a *.cat intensity of {intens!r} (must be > 0): "
+                "the *.cat format stores log10(intensity)."
+            )
+        intens = format_(np.log10(intens), "8.4f")
         dof = format_(dof, "2d")
         elower = format_(elower, "10.4f")
         usd = format_(usd, "3p")
@@ -1076,16 +1080,24 @@ def parvar_to_dict(fname):
 
         result["PARAMS"] = []
         for line in file:
-            try:
-                if not line.strip():
-                    continue
-
-                funcs = [int, np.float64, np.float64, lambda x: x.replace("/", "")]
-                paramline = [func(value) for value, func in zip(line.split(), funcs)]
-
-                result["PARAMS"].append(paramline)
-            except Exception:
+            tokens = line.split()
+            if len(tokens) < 3:
+                # Not enough tokens for ID, VALUE, ERROR: first non-parameter line, stop.
                 break
+
+            try:
+                id_ = int(tokens[0])
+                value = np.float64(tokens[1])
+                uncertainty = np.float64(tokens[2])
+            except ValueError:
+                # Doesn't parse as a parameter line: first non-parameter line, stop.
+                break
+
+            paramline = [id_, value, uncertainty]
+            if len(tokens) > 3:
+                paramline.append(tokens[3].replace("/", ""))
+
+            result["PARAMS"].append(paramline)
 
     return result
 
@@ -1357,6 +1369,7 @@ def df_to_erhamlines(df):
     """
     lines = []
 
+    df = df.copy()
     df["blended"] = False
     col_blended = df.columns.get_loc("blended")
     col_x = df.columns.get_loc("x")
@@ -1875,7 +1888,7 @@ def mixing_coefficient(egy_df, query_strings, save_fname=None, cmap="plasma_r"):
 
         tmp = ax.pcolormesh(xs, ys, zmatrix, cmap=cmap, vmin=0.5, vmax=1)
         ax.set_xlim(min(xs), max(xs))
-        ax.set_ylim(min(xs), max(ys))
+        ax.set_ylim(min(ys), max(ys))
 
     ax = pmix_axes[0]
     ax.set_ylabel("$K_{a}$")
@@ -1929,8 +1942,13 @@ def add_parameter(
 
         tmp_par_dict = par_dict.copy()
         tmp_par_dict["PARAMS"] = tmp_par_dict["PARAMS"] + params
-        results = run_spfit_v(tmp_par_dict, lin_df, spfit_path)
-        stats = parse_fit_result(results["msg"], results["var"])
+        try:
+            results = run_spfit_v(tmp_par_dict, lin_df, spfit_path)
+            stats = parse_fit_result(results["msg"], results["var"])
+            par = results["par"]["PARAMS"].copy()
+        except subprocess.CalledProcessError:
+            stats = {"mw_rms": None, "wrms": None, "ir_rms": None}
+            par = tmp_par_dict["PARAMS"].copy()
         mw_rms = stats["mw_rms"]
         ir_rms = stats["ir_rms"]
         wrms = stats["wrms"]
@@ -1939,7 +1957,7 @@ def add_parameter(
             "mw_rms": mw_rms,
             "ir_rms": ir_rms,
             "wrms": wrms,
-            "par": results["par"]["PARAMS"].copy(),
+            "par": par,
             "stats": stats,
             "params": params,
         }

@@ -15,7 +15,6 @@ def duplicates():
     parser.add_argument(
         "--keep",
         type=str,
-        nargs=1,
         help="Which values to keep ('first' or 'last')",
         default="last",
     )

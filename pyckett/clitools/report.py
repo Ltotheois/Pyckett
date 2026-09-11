@@ -28,7 +28,6 @@ def report():
     parser.add_argument(
         "--noq",
         type=int,
-        nargs=1,
         help="Specify number of quantum numbers",
     )
 

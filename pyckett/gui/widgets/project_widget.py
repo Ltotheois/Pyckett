@@ -293,7 +293,9 @@ class ProjectWidget(QWidget):
             return
 
         self.status_message.emit("Running SPFIT…")
-        self._run_worker(pyckett.run_spfit_v, par_doc.data, lin_doc.data, on_done=self._on_spfit_done)
+        self._run_worker(
+            pyckett.run_spfit_v, par_doc.copy_data(), lin_doc.copy_data(), on_done=self._on_spfit_done
+        )
 
     def _copy_par_to_var(self, par_doc):
         self.project.add_document(Document("var", par_doc.copy_data(), label="var.var", dirty=False))
@@ -352,7 +354,9 @@ class ProjectWidget(QWidget):
             )
             return
         self.status_message.emit("Running SPCAT…")
-        self._run_worker(pyckett.run_spcat_v, var_doc.data, int_doc.data, on_done=self._on_spcat_done)
+        self._run_worker(
+            pyckett.run_spcat_v, var_doc.copy_data(), int_doc.copy_data(), on_done=self._on_spcat_done
+        )
 
     def _on_spcat_done(self, result):
         self.status_message.emit("SPCAT run complete.")

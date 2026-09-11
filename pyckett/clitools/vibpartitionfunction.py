@@ -56,13 +56,14 @@ def vibpartitionfunction():
 
     args = parser.parse_args()
 
+    temperatures = list(Temperatures)
     if args.temperatures:
-        Temperatures.extend(args.temperatures)
-        Temperatures.sort(reverse=True)
+        temperatures.extend(args.temperatures)
+        temperatures.sort(reverse=True)
 
     calc_partition_function(
         args.vibenergies,
-        Temperatures,
+        temperatures,
         print_output=True,
     )
 
