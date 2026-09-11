@@ -936,8 +936,8 @@ def parvar_to_dict(fname):
     tmp_file = open(fname, "r") if not isinstance(fname, io.StringIO) else fname
     with tmp_file as file:
         tmp = file.readline().replace("\n", "")
-        result["TITLE"] = tmp[:56]
-        result["DATE"] = tmp[56:]
+        result["TITLE"] = tmp[:56].strip()
+        result["DATE"] = tmp[56:].strip()
 
         keys = ["NPAR", "NLINE", "NITR", "NXPAR", "THRESH", "ERRTST", "FRAC", "CAL"]
         result.update({key: value for key, value in zip(keys, file.readline().split())})
