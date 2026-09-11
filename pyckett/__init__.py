@@ -561,6 +561,72 @@ def format_param_id(dict_, vib_digits):
     return param_id
 
 
+def recode_param_id_vib_digits(param_id, old_vib_digits, new_vib_digits):
+    """Recode a parameter id for a changed number of vibrational state digits.
+
+    v1/v2 are remapped from old_vib_digits to new_vib_digits width. The
+    "all states" sentinel (get_all_states(vib_digits), i.e. v1/v2 == all 9s)
+    is special-cased so a global parameter stays global instead of being
+    reinterpreted as the literal state index it used to share a code with.
+    """
+    old_all_states = get_all_states(old_vib_digits)
+    new_all_states = get_all_states(new_vib_digits)
+
+    parsed = parse_param_id(param_id, old_vib_digits)
+    if parsed["v1"] == old_all_states:
+        parsed["v1"] = new_all_states
+    if parsed["v2"] == old_all_states:
+        parsed["v2"] = new_all_states
+    return format_param_id(parsed, new_vib_digits)
+
+
+def get_idip_digits(vib_digits):
+    """Return the digits for the IDIP coding."""
+    return {
+        "SYM": 1,
+        "V1": vib_digits,
+        "V2": vib_digits,
+        "I1": 1,
+        "TYP": 1,
+        "FC": 1,
+    }
+
+
+def parse_idip(idip, vib_digits):
+    """Parse an IDIP (dipole identifier) to a dictionary.
+
+    Digit order, least to most significant: SYM, V1, V2, I1, TYP, FC. V1/V2
+    are each vib_digits wide; the rest are single digits.
+    """
+    sign = np.sign(idip)
+    idip = abs(idip)
+    result = {"sign": sign}
+    for label, digits in get_idip_digits(vib_digits).items():
+        if digits == 0:
+            continue
+        idip, result[label] = divmod(idip, 10**digits)
+    return result
+
+
+def format_idip(dict_, vib_digits):
+    """Format an IDIP dictionary back to a dipole identifier."""
+    idip = 0
+    factor = 1
+    for label, digits in get_idip_digits(vib_digits).items():
+        if digits == 0:
+            continue
+        idip += dict_.get(label, 0) * factor
+        factor *= 10**digits
+    idip = idip * (dict_["sign"] or 1)
+    return idip
+
+
+def recode_idip_vib_digits(idip, old_vib_digits, new_vib_digits):
+    """Recode an IDIP for a changed number of vibrational state digits."""
+    parsed = parse_idip(idip, old_vib_digits)
+    return format_idip(parsed, new_vib_digits)
+
+
 # Format functions
 def cat_to_df(fname, sort=False, quanta=None):
     """Convert *.cat file to dataframe.

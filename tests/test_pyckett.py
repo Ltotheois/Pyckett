@@ -479,6 +479,45 @@ class TestFileFormats(unittest.TestCase):
     # @Luis: Ask Marie-Aline for some test data for a more than six quanta example
 
 
+class TestParamIDRecoding(unittest.TestCase):
+    def test_parse_format_roundtrip(self):
+        for vib_digits in (1, 2, 3):
+            for param_id in (10011, 200012, 10099, 100, 200, 30000):
+                parsed = pyckett.parse_param_id(param_id, vib_digits)
+                self.assertEqual(
+                    pyckett.format_param_id(parsed, vib_digits), param_id
+                )
+
+    def test_recode_normal_states(self):
+        # Going from 9 to 10 states (vib_digits 1 -> 2): non-global states
+        # just get zero-padded into the wider v1/v2 fields.
+        self.assertEqual(pyckett.recode_param_id_vib_digits(10011, 1, 2), 1000101)
+        self.assertEqual(pyckett.recode_param_id_vib_digits(200012, 1, 2), 20000102)
+
+    def test_recode_all_states_sentinel(self):
+        # v1 == v2 == get_all_states(vib_digits) means "all states" (global)
+        # and must be remapped to the new all-states sentinel, not treated
+        # as the literal state index it happens to share a code with.
+        self.assertEqual(pyckett.recode_param_id_vib_digits(10099, 1, 2), 1009999)
+
+        naive_parsed = pyckett.parse_param_id(10099, 1)
+        naive = pyckett.format_param_id(naive_parsed, 2)
+        self.assertNotEqual(naive, 1009999)
+
+
+class TestIDIP(unittest.TestCase):
+    def test_parse_format_roundtrip(self):
+        for vib_digits in (1, 2, 3):
+            for idip in (221, 11, 123, 100000):
+                parsed = pyckett.parse_idip(idip, vib_digits)
+                self.assertEqual(pyckett.format_idip(parsed, vib_digits), idip)
+
+    def test_recode_9_to_10_states(self):
+        self.assertEqual(pyckett.recode_idip_vib_digits(221, 1, 2), 2021)
+        self.assertEqual(pyckett.recode_idip_vib_digits(11, 1, 2), 11)
+        self.assertEqual(pyckett.recode_idip_vib_digits(123, 1, 2), 1023)
+
+
 # - test add parameter
 # - test omit parameter
 # - test finalize

@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyckett"
-version = "0.1.39"
+version = "0.2.0"
 authors = [
   { name="Luis Bonah", email="bonah@ph1.uni-koeln.de" },
 ]
 description = "A wrapper around Pickett's SPFIT and SPCAT"
 readme = "README.md"
 requires-python = ">=3.7"
-dependencies = ['numpy', 'pandas', 'matplotlib']
+dependencies = ['numpy', 'pandas', 'matplotlib', 'PyQt6']
 license = "MIT"
 classifiers = [
 	"Programming Language :: Python :: 3",
@@ -24,6 +24,9 @@ dev = [
     "ruff",
 ]
 
+
+[tool.setuptools.package-data]
+"pyckett.gui" = ["resources/*.png"]
 
 [project.urls]
 "Homepage" = "https://github.com/Ltotheois/Pyckett/"
@@ -43,3 +46,4 @@ pyckett_cat = "pyckett.clitools:runpredictions"
 pyckett_pmix = "pyckett.clitools:pmix"
 pyckett_report = "pyckett.clitools:report"
 pyckett_duplicates = "pyckett.clitools:duplicates"
+pyckett = "pyckett.gui.app:main"

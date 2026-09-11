@@ -29,6 +29,21 @@ after having installed Pyckett.
 
 The CLI tools provide help texts via the -h or --help flags.
 
+# GUI
+
+Pyckett also provides a graphical user interface that can be started by running
+
+```
+pyckett
+```
+
+It lets you work on several projects at once, each with its own tabs for
+*.par/*.lin/*.int files (and read-only tabs for *.var/*.cat/*.egy/SPFIT-SPCAT
+output), run SPFIT/SPCAT virtually without touching disk, and includes an
+Actions tab for removing duplicate assignments and testing which parameters
+to add or omit. Every change to a project's *.par/*.lin/*.int content is
+versioned, so you can step back to an earlier point at any time.
+
 # CLI Tools
 
 Pyckett provides a set of command line utilities which perform common steps of an iterative fitting process.
